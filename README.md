@@ -5,7 +5,7 @@
 DynamicHistory automagically deletes history for a page if a specified set of words are found on it. It will however not remove pages from the "Recent Pages/Tabs" list in your browser. It can also blacklist and whitelist domains from your history.
 
 ## Notes
-This repository only contains the Chrome extension (maybe I'll put in the Firefox one later but the code is really crappy in that one)
+This repository only contains the Chrome extension (maybe I'll put in the Firefox one later but the code is really crappy in that one). The project is also essentially complete so unless some bugs crop up, it will be receiving minimal updates.
 
 ## Installation
 1. Git clone the repo with: `git clone https://github.com/null-dev/DynamicHistory`
