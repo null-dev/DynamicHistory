@@ -1,0 +1,48 @@
+<!--
+ DynamicHistory by: nulldev
+
+ HTML Settings Page
+-->
+<html>
+<head>
+  <title>DynamicHistory Settings</title>
+  <!-- JQuery 2.2.0 -->
+  <script src="jquery-2.2.0.min.js"></script>
+  <!-- Core Javascript -->
+  <script src="options.js"></script>
+  <style>
+  h3 {margin: 0; padding:0;}
+  </style>
+</head>
+<body>
+  <h1>DynamicHistory Settings</h1>
+  <p>
+    by: <a href="http://nulldev.xyz">nulldev</a>
+  </p>
+  <p>
+    <b>Note:</b> Settings are saved automatically.
+  </p>
+  <hr />
+  <h3>Dangerous Domains:</h3>
+  Always delete history for the following domains:<br />
+  <textarea id="danger_domains" rows="5" placeholder="bad.example.com&#10;horrible.bad.com"></textarea><br /><br />
+  <h3>Safe Domains:</h3>
+  Never delete history for the following domains:<br />
+  <textarea id="safe_domains" rows="5" placeholder="cool.example.com&#10;god.example.com"></textarea><br /><br />
+  <h3>Dangerous Keywords:</h3>
+  Delete the history for a page containing any of the following words:<br />
+  <textarea id="bad_words" rows="5" placeholder="horrible&#10;disgusting&#10;bad"></textarea><br /><br />
+  <h3>Append Prefix:</h3>
+  Append a prefix to any tab that has it's history removed:<input id="do_prefix" type="checkbox" /><br /><br />
+  <h3>Outline Page:</h3>
+  Apply a colored outline to the page of any tab that has it's history removed:<input id="do_outline" type="checkbox" /><br /><br />
+  <h3>Prefix Text:</h3>
+  The prefix to be appended if "Append Prefix" is enabled:<br />
+  <input id="prefix_text" type="text" /><br /><br />
+  <h3>Outline Color:</h3>
+  The outline color of the page if "Outline Page" is enabled:<br />
+  <input id="outline_color" type="color" style="width: 100px">
+  <br /><br /><hr /><br />
+  <button id="clear">Reset All Settings</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="oninstall.html">View Installation Instructions</a>
+</body>
+</html>
