@@ -25,9 +25,13 @@ function checkPage(tab, theHtml) {
     && (contains(dangerDomains, pageDomain)
       || stringContainsAnyStringsOfArrayOfStrings(theHtml, badWords)
       || stringContainsAnyStringsOfArrayOfStrings(theHtml, escapedBadWords))) {
+		  //Dangerous
         removeHistory(tab.url);
         markPage(tab);
         tabMap[tab.id] = tab.url;
+  } else {
+	  //Safe
+	  releaseTab(tab);
   }
 }
 function removeHistory(url) {
@@ -47,6 +51,11 @@ function markPage(tab) {
       code: "document.body.style.border = '5px solid " + outlineColor + "';"
     });
   }
+  updateBadge(tab, true);
+}
+//Declare a tab as safe now
+function releaseTab(tab) {
+	 updateBadge(tab, false);
 }
 //Entity map for html escaping
 var entityMap = {
@@ -125,6 +134,9 @@ var doPrefix;
 var doOutline;
 var prefixText;
 var outlineColor;
+var doBadge;
+var badgeColor;
+var badgeText;
 //Load settings
 function loadSettings() {
   chrome.storage.sync.get({
@@ -133,8 +145,11 @@ function loadSettings() {
     badWords: '',
     doPrefix: true,
     doOutline: true,
+    doBadge: true,
     prefixText: '[DH] ',
-    outlineColor: '#ff0000'
+    outlineColor: '#ff0000',
+    badgeText: '!',
+    badgeColor: '#ff0000'
   }, function(items) {
     dangerDomains = items.dangerDomains.split(splitElement);
     cleanArray(dangerDomains, '');
@@ -144,8 +159,11 @@ function loadSettings() {
     cleanArray(badWords, '');
     doPrefix = items.doPrefix;
     doOutline = items.doOutline;
+    doBadge = items.doBadge;
     prefixText = items.prefixText;
     outlineColor = items.outlineColor;
+    badgeText = items.badgeText;
+    badgeColor = items.badgeColor;
     //Escape bad words
     escapedBadWords = [];
     var i = badWords.length;
@@ -182,6 +200,16 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 chrome.tabs.onCreated.addListener(function(tabId, changeInfo, tab) {
    killHistory(tab);
 });
+function updateBadge(tab, dangerous) {
+	if(doBadge) {
+		if(dangerous) {
+			chrome.browserAction.setBadgeBackgroundColor({color:badgeColor, tabId: tab.id});
+			chrome.browserAction.setBadgeText({text:badgeText, tabId: tab.id});
+		} else {
+			chrome.browserAction.setBadgeText({text:'', tabId: tab.id});
+		}
+	}
+}
 //Load settings
 loadSettings();
 //Check install
@@ -194,3 +222,7 @@ function install_notice() {
     chrome.tabs.create({url: "oninstall.html"});
 }
 install_notice();
+//Open options page onclick
+chrome.browserAction.onClicked.addListener(function(tab) {
+	chrome.runtime.openOptionsPage();
+});

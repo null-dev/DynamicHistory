@@ -11,16 +11,22 @@ function loadSettings() {
     badWords: '',
     doPrefix: true,
     doOutline: true,
+    doBadge: true,
     prefixText: '[DH] ',
-    outlineColor: '#ff0000'
+    outlineColor: '#ff0000',
+    badgeText: '!',
+    badgeColor: '#ff0000'
   }, function(items) {
     $('#danger_domains').val(items.dangerDomains);
     $('#safe_domains').val(items.safeDomains);
     $('#bad_words').val(items.badWords);
     $('#do_prefix').prop('checked', items.doPrefix);
     $('#do_outline').prop('checked', items.doOutline);
+    $('#do_badge').prop('checked', items.doBadge);
     $('#prefix_text').val(items.prefixText);
     $('#outline_color').val(items.outlineColor);
+    $('#badge_text').val(items.badgeText);
+    $('#badge_color').val(items.badgeColor);
   });
 }
 //Save settings
@@ -31,8 +37,11 @@ function saveSettings() {
     badWords: $('#bad_words').val(),
     doPrefix: $('#do_prefix').prop('checked'),
     doOutline: $('#do_outline').prop('checked'),
+    doBadge: $('#do_badge').prop('checked'),
     prefixText: $('#prefix_text').val(),
-    outlineColor: $('#outline_color').val()
+    outlineColor: $('#outline_color').val(),
+    badgeText: $('#badge_text').val(),
+    badgeColor: $('#badge_color').val()
   }, function() {
     //Update background page
     chrome.runtime.sendMessage({
@@ -44,6 +53,9 @@ function saveSettings() {
 function updateInputStates() {
   $('#prefix_text').attr("disabled", !$("#do_prefix").is(":checked"));
   $('#outline_color').attr("disabled", !$("#do_outline").is(":checked"));
+  var disableBadgeOptions = !$("#do_badge").is(":checked");
+  $('#badge_text').attr("disabled", disableBadgeOptions);
+  $('#badge_color').attr("disabled", disableBadgeOptions);
 }
 //Fires everytime something is changed. Saves settings and updates disabled inputs
 function saveAndUpdate() {
