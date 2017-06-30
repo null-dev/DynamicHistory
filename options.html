@@ -1,56 +1,156 @@
 <!--
- DynamicHistory by: nulldev
+	DynamicHistory by: nulldev
 
- HTML Settings Page
+	HTML Settings Page
 -->
 <html>
-<head>
-  <title>DynamicHistory Settings</title>
-  <!-- JQuery 2.2.0 -->
-  <script src="jquery-2.2.0.min.js"></script>
-  <!-- Core Javascript -->
-  <script src="options.js"></script>
-  <style>
-  h3 {margin: 0; padding:0;}
-  </style>
-</head>
-<body>
-  <h1>DynamicHistory Settings</h1>
-  <p>
-    by: <a href="http://nulldev.xyz">nulldev</a>
-  </p>
-  <p>
-    <b>Note:</b> Settings are saved automatically.
-  </p>
-  <hr />
-  <h3>Dangerous Domains:</h3>
-  Always delete history for the following domains:<br />
-  <textarea id="danger_domains" rows="5" placeholder="bad.example.com&#10;horrible.bad.com"></textarea><br /><br />
-  <h3>Safe Domains:</h3>
-  Never delete history for the following domains:<br />
-  <textarea id="safe_domains" rows="5" placeholder="cool.example.com&#10;god.example.com"></textarea><br /><br />
-  <h3>Dangerous Keywords:</h3>
-  Delete the history for a page containing any of the following words:<br />
-  <textarea id="bad_words" rows="5" placeholder="horrible&#10;disgusting&#10;bad"></textarea><br /><br />
-  <h3>Append Prefix:</h3>
-  Append a prefix to any tab that has it's history removed:<input id="do_prefix" type="checkbox" /><br /><br />
-  <h3>Outline Page:</h3>
-  Apply a colored outline to the page of any tab that has it's history removed:<input id="do_outline" type="checkbox" /><br /><br />
-  <h3>Show Badge:</h3>
-  Show a badge beside the DynamicHistory icon when viewing a tab that has it's history removed:<input id="do_badge" type="checkbox" /><br /><br />
-  <h3>Prefix Text:</h3>
-  The prefix to be appended if "Append Prefix" is enabled:<br />
-  <input id="prefix_text" type="text" /><br /><br />
-  <h3>Outline Color:</h3>
-  The outline color of the page if "Outline Page" is enabled:<br />
-  <input id="outline_color" type="color" style="width: 100px"><br /><br />
-  <h3>Badge Text:</h3>
-  The text of the badge to show if "Show Badge" is enabled:<br />
-  <input id="badge_text" type="text" /><br /><br />
-  <h3>Badge Color:</h3>
-  The color of the badge to show if "Show Badge" is enabled:<br />
-  <input id="badge_color" type="color" style="width: 100px">
-  <br /><br /><hr /><br />
-  <button id="clear">Reset All Settings</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="oninstall.html">View Installation Instructions</a>
-</body>
+	<head>
+		<title>DynamicHistory Settings</title>
+		<!-- JQuery 2.2.0 -->
+		<script src="jquery-2.2.0.min.js"></script>
+		<!-- Core Javascript -->
+		<script src="options.js"></script>
+		<style>
+#body h3 {margin: 0; padding:0;}
+#body h2, #body h1 {
+	font-weight: bold;
+	border-bottom: 1px solid grey;
+}
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0,0,0); /* Fallback color */
+	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+	padding-top: 200px;
+}
+
+.close {
+	color: #fff;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+	opacity: 0.6;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.modal-header {
+	padding: 2px 16px;
+	background-color: #f44336;
+	color: white;
+}
+
+.modal-body {padding: 2px 16px;}
+
+.modal-footer {
+	padding: 8px 16px;
+	border-top: 1px solid grey;
+}
+
+.modal-content {
+	position: relative;
+	background-color: #fefefe;
+	margin: auto;
+	padding: 0;
+	border: 1px solid #888;
+	width: 80%;
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+	-webkit-animation-name: animatetop;
+	-webkit-animation-duration: 0.4s;
+	animation-name: animatetop;
+	animation-duration: 0.4s
+}
+
+			    @-webkit-keyframes animatetop {
+				    from {top: -300px; opacity: 0}
+				    to {top: 0; opacity: 1}
+			    }
+
+			    @keyframes animatetop {
+				    from {top: -300px; opacity: 0}
+				    to {top: 0; opacity: 1}
+			    } 
+		</style>
+	</head>
+	<body>
+		<div id="body">
+			<h1>DynamicHistory Settings</h1>
+			<p>
+			by: <a href="http://nulldev.xyz">nulldev</a>
+			</p>
+			<p>
+			<b>Note:</b> Settings are saved automatically.
+			</p>
+			<h2>Removal criteria</h2>
+			<h3>Dangerous domains:</h3>
+			Always delete history for the following domains:<br />
+			<textarea id="danger_domains" rows="5" data-placeholder="Example:\n\nbad.example.com\nhorrible.bad.com"></textarea><br /><br />
+			<h3>Safe domains:</h3>
+			Never delete history for the following domains:<br />
+			<textarea id="safe_domains" rows="5" data-placeholder="Example:\n\ncool.example.com\ngod.example.com"></textarea><br /><br />
+			<h3>Dangerous keywords:</h3>
+			Delete the history for a page containing any of the following words:<br />
+			<textarea id="bad_words" rows="5" data-placeholder="Example:\n\nhorrible\ndisgusting\nbad"></textarea><br /><br />
+
+			<h2>Regex matching (for advanced users only)</h2>
+			<h3>Regex 'Dangerous domains':</h3>
+			Use regex to match for dangerous domains: <input id="do_regex_danger_domains" type="checkbox" /><br /><br />
+			<h3>Regex 'Safe domains':</h3>
+			Use regex to match for safe domains: <input id="do_regex_safe_domains" type="checkbox" /><br /><br />
+			<h3>Regex 'Dangerous keywords':</h3>
+			Use regex to match for dangerous keywords: <input id="do_regex_danger_keywords" type="checkbox" /><br /><br />
+			<h3>Check entire URL</h3>
+			Check the entire URL (including protocol, path and query) when comparing domains. More useful if regex is enabled. <input id="do_check_entire_url" type="checkbox" /><br /><br />
+
+			<h2>Display options</h2>
+			<h3>Append prefix:</h3>
+			Append a prefix to any tab that has it's history removed (buggy on some webpages): <input id="do_prefix" type="checkbox" /><br /><br />
+			<h3>Outline page:</h3>
+			Apply a colored outline to the page of any tab that has it's history removed (buggy on some webpages): <input id="do_outline" type="checkbox" /><br /><br />
+			<h3>Show badge:</h3>
+			Show a badge beside the DynamicHistory icon when viewing a tab that has it's history removed: <input id="do_badge" type="checkbox" /><br /><br />
+			<h3>Prefix text:</h3>
+			The prefix to be appended if "Append Prefix" is enabled:<br />
+			<input id="prefix_text" type="text" /><br /><br />
+			<h3>Outline color:</h3>
+			The outline color of the page if "Outline Page" is enabled:<br />
+			<input id="outline_color" type="color" style="width: 100px"><br /><br />
+			<h3>Badge text:</h3>
+			The text of the badge to show if "Show Badge" is enabled:<br />
+			<input id="badge_text" type="text" /><br /><br />
+			<h3>Badge color:</h3>
+			The color of the badge to show if "Show Badge" is enabled:<br />
+			<input id="badge_color" type="color" style="width: 100px">
+
+			<h2>Useful actions</h2>
+			<button id="clear_btn">Reset All Settings</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="oninstall_link" style="display:none" href="oninstall.html">View Installation Instructions</a>
+		</div>
+
+		<div id="clear_modal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="close">&times;</span>
+					<h2>Reset all settings?</h2>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to reset all settings to their default values?</p>
+					<p>This action is irreversable!</p>
+				</div>
+				<div class="modal-footer">
+					<button id="clear_yes_btn">Yes</button>
+					<button id="clear_no_btn">No</button>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>
