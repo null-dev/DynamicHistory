@@ -7,9 +7,14 @@ DynamicHistory automagically deletes history for a page if a specified set of wo
 ## Notes
 This extension functions properly on both Chrome and Firefox. It is a hybrid WebExtension that will detect the browser type automatically upon installation. The project is also essentially complete so unless some bugs crop up, it will be receiving minimal updates.
 
+## Webstore links
+[![ChromeWebStoreButton](http://nulldev.xyz/projects/img/chrome-web-store.png)](https://chrome.google.com/webstore/detail/dynamichistory/ehkdegpnplleadlmjoaidmjiabocgpok)
+
+[Available at Firefox Addons](https://addons.mozilla.org/en-US/firefox/addon/dynamichistory/)
+
 ## Chrome installation
 ### From binary:
-1. Download the extension from here: http://files.nulldev.xyz/Projects/DynamicHistory/DynamicHistory.crx
+1. Download the extension from here: https://csg.nd.vu/s3/d/DynamicHistory.crx?d
 2. Open the Chrome "extensions" page by copying and pasting this into the navigation bar: `chrome://extensions/`
 3. Drag the extension downloaded in step 1 onto the extensions page
 4. Disable "History Sync" if you are signed into chrome by following the instructions in the tab that opens up.
@@ -19,6 +24,12 @@ This extension functions properly on both Chrome and Firefox. It is a hybrid Web
 2. Open the Chrome "extensions" page by copying and pasting this into the navigation bar: `chrome://extensions/`
 3. Drag the folder that was created in step 1 from the git clone onto the extensions page (or click "Load unpacked extension..." at the top of the page and browse to the cloned folder)
 4. Disable "History Sync" if you are signed into chrome by following the instructions in the tab that opens up.
+
+## Firefox installation
+### From source:
+1. Git clone the repo with: `git clone https://github.com/null-dev/DynamicHistory`
+2. Visit "about:debugging#addons" in your browser (copy and paste it into the URL bar).
+3. Click the "Load Temporary Add-on" button and choose the any file in the repo.
 
 ## Configuration
 Here is a list of configuration options and their purposes. Note that `Danger Domains`, `Safe Domains` and `Dangerous Keywords` are all split by newlines.
