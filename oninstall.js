@@ -5,6 +5,6 @@
  */
 jQuery(document).ready(function () {
   $("#options_button").click(function () {
-    chrome.runtime.openOptionsPage()
+    chrome.runtime.openOptionsPage();
   });
 });
