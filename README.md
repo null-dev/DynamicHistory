@@ -8,9 +8,7 @@ DynamicHistory automagically deletes history for a page if a specified set of wo
 This extension functions properly on both Chrome and Firefox. It is a hybrid WebExtension that will detect the browser type automatically upon installation. The project is also essentially complete so unless some bugs crop up, it will be receiving minimal updates.
 
 ## Webstore links
-[![ChromeWebStoreButton](http://nulldev.xyz/projects/img/chrome-web-store.png)](https://chrome.google.com/webstore/detail/dynamichistory/ehkdegpnplleadlmjoaidmjiabocgpok)
-
-[Available at Firefox Addons](https://addons.mozilla.org/en-US/firefox/addon/dynamichistory/)
+[![ChromeWebStoreButton](http://nulldev.xyz/projects/img/chrome-web-store.png)](https://chrome.google.com/webstore/detail/dynamichistory/ehkdegpnplleadlmjoaidmjiabocgpok) [![AddonsMozillaOrgButton](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_1.png)](https://addons.mozilla.org/en-US/firefox/addon/dynamichistory/)
 
 ## Chrome installation
 ### From binary:
