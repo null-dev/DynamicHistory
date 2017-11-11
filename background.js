@@ -6,9 +6,9 @@
 //Check if a tab should have it's history killed
 function killHistory(tab) {
 	//Check if tab is undefined
-	if (!tab) {
-		return;
-	}
+	if (!tab) return;
+
+	//Inject content script
 	chrome.tabs.executeScript(tab.id, {
 		file: "content.js"
 	}, function() {
@@ -113,13 +113,20 @@ function escapeHtml(string) {
 }
 
 //Test a bunch of regexes against a string
-//TODO Optimize by caching the regexes
+let regexCache = {};
 function batchTest(regexes, string) {
 	for (let i = 0; i < regexes.length; i++) {
 		try {
-			if (new RegExp(regexes[i]).test(string)) {
-				return true;
+			let regexString = regexes[i];
+
+			//Find regex in cache
+			let regex = regexCache[regexString];
+			if(regex == null) {
+				regex = new RegExp(regexString);
+				regexCache[regexString] = regex;
 			}
+
+			if (regex.test(string)) return true;
 		} catch (e) {
 			console.log("Regex error!", e);
 		}
@@ -220,6 +227,9 @@ function loadSettings() {
 		badgeText: '!',
 		badgeColor: '#ff0000'
 	}, function(items) {
+		//Clear regex cache
+		regexCache = [];
+
 		dangerDomains = items.dangerDomains.split(splitElement);
 		cleanArray(dangerDomains, '');
 		safeDomains = items.safeDomains.split(splitElement);
@@ -240,6 +250,7 @@ function loadSettings() {
 		outlineColor = items.outlineColor;
 		badgeText = items.badgeText;
 		badgeColor = items.badgeColor;
+
 		//Escape bad words
 		escapedBadWords = [];
 		let i = badWords.length;
@@ -288,19 +299,23 @@ function updateBadge(tab, dangerous) {
 }
 //Load settings
 loadSettings();
-//If we are using chrome, notify the user of the chrome bug
-function install_notice() {
-	if (localStorage.getItem('install_time'))
-		return;
 
+function installNotice() {
+	//Update install time
 	let now = new Date().getTime();
-	localStorage.setItem('install_time', now);
+	chrome.storage.local.set({installTime: now}, function() {});
+
+	//If we are using chrome, notify the user of the chrome bug, otherwise open options page
 	if (typeof browser === "undefined")
 		chrome.tabs.create({url: "oninstall.html"});
 	else
 		chrome.runtime.openOptionsPage();
 }
-install_notice();
+if(localStorage.getItem('install_time') == null)
+	chrome.storage.local.get({installTime: -1}, function(items) {
+		if(items.installTime === -1)
+			installNotice();
+	});
 
 //Open options page onclick
 chrome.browserAction.onClicked.addListener(function(tab) {

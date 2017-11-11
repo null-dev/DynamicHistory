@@ -115,12 +115,12 @@ jQuery(document).ready(function () {
 	$("#clear_btn").click(function () {
 		$("#clear_modal").show();
 		//Scroll to top hack
-		$("#body").css("height", "400px");
+		$("#body").css("height", "500px");
 		$("#body").css("overflow-y", "hidden");
 		setTimeout(function() {
 			$("#body").css("height", "");
 			$("#body").css("overflow-y", "visible");
-		}, 10);
+		}, 100);
 	});
 	let hideModal = function() {
 		$("#clear_modal").hide();

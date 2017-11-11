@@ -9,7 +9,7 @@
 	"short_name": "DynamicHistory",
 	"author": "nulldev",
 	"description": "Automagically delete history based on the keywords on the page!",
-	"version": "2.0",
+	"version": "2.1",
 	"options_ui": {
 		"page": "options.html",
 		"chrome_style": true,
