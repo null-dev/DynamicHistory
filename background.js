@@ -206,9 +206,13 @@ let prefixText;
 let outlineColor;
 let badgeColor;
 let badgeText;
+//Get proper storage mechanism
+function storage() {
+	return chrome.storage.sync || chrome.storage.local;
+}
 //Load settings
 function loadSettings() {
-	chrome.storage.sync.get({
+	storage().get({
 		dangerDomains: '',
 		safeDomains: '',
 		badWords: '',

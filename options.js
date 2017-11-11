@@ -3,9 +3,13 @@
  *
  * Core JS for Settings
  */
+//Get proper storage mechanism
+function storage() {
+	return chrome.storage.sync || chrome.storage.local;
+}
 //Load settings
 function loadSettings() {
-	chrome.storage.sync.get({
+	storage().get({
 		dangerDomains: '',
 		safeDomains: '',
 		badWords: '',
@@ -52,7 +56,7 @@ function loadSettings() {
 }
 //Save settings
 function saveSettings() {
-	chrome.storage.sync.set({
+	storage().set({
 		dangerDomains: ignoreP($('#danger_domains')),
 		safeDomains: ignoreP($('#safe_domains')),
 		badWords: ignoreP($('#bad_words')),
