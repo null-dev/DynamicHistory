@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Andy Bao
+ * Copyright (c) 2018 Andy Bao
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -11,16 +11,20 @@
 /**
  * Core JS for Settings
  */
+
 //Get proper storage mechanism
 function storage() {
+	//Attempt to use synced storage, otherwise fallback to local storage
 	return chrome.storage.sync || chrome.storage.local;
 }
+
 //Load settings
 function loadSettings() {
 	storage().get({
 		dangerDomains: '',
 		safeDomains: '',
 		badWords: '',
+		historyProcessor: '',
 
 		doRegexDangerDomains: false,
 		doRegexSafeDomains: false,
@@ -39,6 +43,7 @@ function loadSettings() {
 		$('#danger_domains').val(items.dangerDomains);
 		$('#safe_domains').val(items.safeDomains);
 		$('#bad_words').val(items.badWords);
+		$('#history_processor').val(items.historyProcessor);
 
 		$('#do_regex_danger_domains').prop('checked', items.doRegexDangerDomains);
 		$('#do_regex_safe_domains').prop('checked', items.doRegexSafeDomains);
@@ -57,8 +62,10 @@ function loadSettings() {
 
 		//Initalize placeholders
 		$('textarea').each(function() {
-			if($(this).val() == '')
+			if($(this).val() == '') {
 				$(this).val(pVal($(this)));
+				$(this).css('color', 'grey');
+			}
 		});
 	});
 }
@@ -68,6 +75,7 @@ function saveSettings() {
 		dangerDomains: ignoreP($('#danger_domains')),
 		safeDomains: ignoreP($('#safe_domains')),
 		badWords: ignoreP($('#bad_words')),
+		historyProcessor: ignoreP($('#history_processor')),
 
 		doRegexDangerDomains: $('#do_regex_danger_domains').prop('checked'),
 		doRegexSafeDomains: $('#do_regex_safe_domains').prop('checked'),
@@ -110,16 +118,70 @@ function ignoreP(a) {
 function pVal(a) {
 	return a.data().placeholder.replace(/\\n/g, '\n');
 }
+
+function bindHpTemplates() {
+	bindTemplate("Replace http with https", `
+		if(item.url.startsWith("http") && !item.url.startsWith("https"))
+		item.url = item.url.replace("http", "https");
+		`);
+	bindTemplate("Remove anchors", `
+		for(let i = item.url.length - 1; i >= 0; i--) {
+			let c = item.url[i];
+			if(c === '/') break;
+			if(c === '#') {
+				item.url = item.url.substring(0, i);
+				break;
+			}
+		}
+		`);
+	bindTemplate("Replace all history entries with 'http://example.com/'", `
+		item.url = "http://example.com/";
+		`);
+	bindTemplate("Make all history entries link to the Wayback Machine", `
+		if(!item.url.startsWith("https://web.archive.org/web/*/"))
+		item.url = "https://web.archive.org/web/*/" + item.url;
+		`);
+	bindTemplate("Fill your history with Rick Rolls", `
+		if(!item.url.startsWith("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
+		item.url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ignored=" + Math.random();
+		`);
+	bindTemplate("Leave no history (without using incognito mode)", `
+		item.remove();
+		`);
+}
+
+function bindTemplate(name, code) {
+	let btn = document.createElement("button");
+	btn.textContent = name;
+	btn.onclick = function() {
+		let box = $("#history_processor");
+		if(box.val() == pVal(box)) {
+			box.val('');
+			box.css('color', 'black');
+		}
+
+		box.val((box.val().trim() + "\n\n" + "//" + name + "\n" + code.trim()).trim());
+
+		saveSettings();
+	}
+	btn.style.marginTop = "8px";
+	let t = document.getElementById("hp_templates");
+	t.appendChild(btn);
+	t.appendChild(document.createElement("br"));
+}
+
 jQuery(document).ready(function () {
 	//Hook placeholders
 	$('textarea').focus(function(){
 		if($(this).val() === pVal($(this))){
 			$(this).val('');
+			$(this).css('color', 'black');
 		}
 	});
 	$('textarea').blur(function(){
 		if($(this).val() ===''){
 			$(this).val(pVal($(this)));
+			$(this).css('color', 'grey');
 		}    
 	});
 
@@ -167,6 +229,9 @@ jQuery(document).ready(function () {
 	$( window ).unload(function() {
 		saveAndUpdate();
 	});
+
+	//Bind history processor templates
+	bindHpTemplates();
 
 	//Show oninstall link if chrome
 	if (typeof browser === "undefined")

@@ -1,16 +1,16 @@
 <!--
-    Copyright (c) 2017 Andy Bao
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+	Copyright (c) 2018 Andy Bao
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
 -->
 <!--
-    HTML Settings Page
+	HTML Settings Page
 -->
 <html>
 	<head>
@@ -77,18 +77,18 @@
 	-webkit-animation-name: animatetop;
 	-webkit-animation-duration: 0.4s;
 	animation-name: animatetop;
-	animation-duration: 0.4s
+	animation-duration: 0.4s;
 }
 
-			    @-webkit-keyframes animatetop {
-				    from {top: -300px; opacity: 0}
-				    to {top: 0; opacity: 1}
-			    }
+	@-webkit-keyframes animatetop {
+		from {top: -300px; opacity: 0}
+		to {top: 0; opacity: 1}
+	}
 
-			    @keyframes animatetop {
-				    from {top: -300px; opacity: 0}
-				    to {top: 0; opacity: 1}
-			    } 
+	@keyframes animatetop {
+		from {top: -300px; opacity: 0}
+		to {top: 0; opacity: 1}
+	} 
 		</style>
 	</head>
 	<body>
@@ -141,8 +141,16 @@
 			The color of the badge to show if "Show Badge" is enabled:<br />
 			<input id="badge_color" type="color" style="width: 100px">
 
+			<h2>Advanced</h2>
+			<h3>Custom history processor:</h3>
+			Run a custom JavaScript function to modify history items as they are added to the history database:<br />
+			<textarea id="history_processor" rows="10" cols="50" data-placeholder="Example:\n\n//Pretend that all the sites we visit are secure\nif(item.url.startsWith(&quot;http&quot;) && !item.url.startsWith(&quot;https&quot;))\n    item.url = item.url.replace('http', 'https');\n\n//Remove all FTP sites\nif(item.url.startsWith(&quot;ftp&quot;)\n    item.remove();"></textarea><br /><br />
+			<h3>History processor templates:</h3>
+			<div id="hp_templates">
+			</div>
+
 			<h2>Useful actions</h2>
-			<button id="clear_btn">Reset All Settings</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="oninstall_link" style="display:none" href="oninstall.html">View Installation Instructions</a>
+			<button id="clear_btn">Reset All Settings</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="oninstall_link" style="display:none" href="oninstall.html">View Installation Instructions</a>
 		</div>
 
 		<div id="clear_modal" class="modal">

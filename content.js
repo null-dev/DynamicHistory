@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Andy Bao
+ * Copyright (c) 2018 Andy Bao
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -12,6 +12,6 @@
  * Extension Content Script Helper
  */
 chrome.runtime.sendMessage({
-  action: "getSource",
-  source: document.documentElement.outerHTML
+	action: "getSource",
+	source: document.documentElement.outerHTML
 });

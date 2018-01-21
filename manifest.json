@@ -9,7 +9,7 @@
 	"short_name": "DynamicHistory",
 	"author": "nulldev",
 	"description": "Automagically delete history based on the keywords on the page!",
-	"version": "2.3",
+	"version": "2.4",
 	"options_ui": {
 		"page": "options.html",
 		"chrome_style": true,
@@ -30,9 +30,7 @@
 		"128": "icon128.png"
 	},
 	"background": {
-		"scripts": [
-			"background.js"
-		]
+		"page": "background.html"
 	},
 	"browser_action": {
 		"default_icon": {
@@ -41,5 +39,8 @@
 			"48": "icon48.png",
 			"128": "icon128.png"
 		}
+	},
+	"sandbox": {
+		"pages": ["history_processor_sandbox.html"]
 	}
 }

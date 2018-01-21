@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Andy Bao
+ * Copyright (c) 2018 Andy Bao
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -9,40 +9,51 @@
  * SOFTWARE.
  */
 /**
- * Core extension JS
+ * Background JS
  */
-//Check if a tab should have it's history killed
+
+//Check if a tab should have it's history killed by checking it's HTML
 function killHistory(tab) {
 	//Check if tab is undefined
 	if (!tab) return;
 
+	//Immediately check URLs (before we have content script)
+	checkPage(tab, null);
+
 	//Inject content script
-	chrome.tabs.executeScript(tab.id, {
-		file: "content.js"
-	}, function() {
-		// If you try and inject into an extensions page or the webstore/NTP you'll get an error
-		if (chrome.runtime.lastError) {
-			console.log("Error injecting script!", chrome.runtime.lastError)
-		}
-	});
+	if(tab.id != null)
+		chrome.tabs.executeScript(tab.id, {
+			file: "content.js"
+		}, function() {
+			// If you try and inject into an extensions page or the webstore/NTP you'll get an error
+			if (chrome.runtime.lastError) {
+				console.log("Error injecting script!", chrome.runtime.lastError)
+			}
+		});
 }
+
 //Check a page if it matches the history filters
 function checkPage(tab, theHtml) {
+	if(tab.url == null) return;
 	let pageDomain = extractDomain(tab.url);
 	if(isDangerous(tab, theHtml)) {
 		//Dangerous
 		removeHistory(tab.url);
-		markPage(tab);
-		tabMap[tab.id] = tab.url;
+		if(tab.id != null) {
+			markPage(tab);
+			tabMap[tab.id] = tab.url;
+		}
 	} else {
 		//Safe
-		releaseTab(tab);
+		if(tab.id != null)
+			releaseTab(tab);
 	}
 }
 
 //Check HTML
 function isDangerous(tab, theHtml) {
 	//Get domain
+	if(tab.url == null) return false;
 	let pageDomain;
 	if(doCheckEntireUrl)
 		pageDomain = tab.url
@@ -67,14 +78,16 @@ function isDangerous(tab, theHtml) {
 			return true;
 	}
 
-	//Test keywords
-	if(doRegexDangerKeywords) {
-		if(batchTest(badWords, theHtml))
-			return true;
-	} else {
-		if(stringContainsAnyStringsOfArrayOfStrings(theHtml, badWords)
-			|| stringContainsAnyStringsOfArrayOfStrings(theHtml, escapedBadWords))
-			return true;
+	if(theHtml != null) {
+		//Test keywords
+		if(doRegexDangerKeywords) {
+			if(batchTest(badWords, theHtml))
+				return true;
+		} else {
+			if(stringContainsAnyStringsOfArrayOfStrings(theHtml, badWords)
+				|| stringContainsAnyStringsOfArrayOfStrings(theHtml, escapedBadWords))
+				return true;
+		}
 	}
 
 	return false;
@@ -130,7 +143,18 @@ function batchTest(regexes, string) {
 			//Find regex in cache
 			let regex = regexCache[regexString];
 			if(regex == null) {
-				regex = new RegExp(regexString);
+				let tempRegexIndexer = regexString.replace("//", "aa");
+				let firstSlash = tempRegexIndexer.indexOf("/");
+				let secondSlash = tempRegexIndexer.indexOf("/", firstSlash + 1);
+				if(firstSlash < 0)
+					firstSlash = -1;
+				if(secondSlash < 0)
+					secondSlash = tempRegexIndexer.length;
+
+				let realRegex = regexString.substring(firstSlash + 1, secondSlash);
+				let flags = regexString.substring(secondSlash + 1);
+
+				regex = new RegExp(realRegex, flags);
 				regexCache[regexString] = regex;
 			}
 
@@ -200,6 +224,7 @@ let dangerDomains;
 let safeDomains;
 let badWords;
 let escapedBadWords;
+let historyProcessor;
 
 let doRegexDangerDomains;
 let doRegexSafeDomains;
@@ -224,6 +249,7 @@ function loadSettings() {
 		dangerDomains: '',
 		safeDomains: '',
 		badWords: '',
+		historyProcessor: '',
 
 		doRegexDangerDomains: false,
 		doRegexSafeDomains: false,
@@ -248,6 +274,7 @@ function loadSettings() {
 		cleanArray(safeDomains, '');
 		badWords = items.badWords.split(splitElement);
 		cleanArray(badWords, '');
+		historyProcessor = items.historyProcessor;
 
 		doRegexDangerDomains = items.doRegexDangerDomains;
 		doRegexSafeDomains = items.doRegexSafeDomains;
@@ -286,19 +313,63 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 });
 //Add listener for tab updates
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	if(changeInfo.url) {
+	if(tab != null && tab.url != null) {
 		if(tabMap[tabId]) {
 			removeHistory(tabMap[tabId]);
 			tabMap[tabId] = undefined;
 		}
 	}
-	if(changeInfo.status == "complete") {
-		killHistory(tab);
+
+	//Ignore if only the title updated (we modify the title sometimes so we might get into a loop)
+	let isTitleUpdate = changeInfo.title != null;
+	for(let property in changeInfo) {
+		if(property != "title" && changeInfo[property] != null) {
+			isTitleUpdate = false;
+		}
 	}
+
+	if(!isTitleUpdate)
+		killHistory(tab);
 });
-chrome.tabs.onCreated.addListener(function(tabId, changeInfo, tab) {
+chrome.tabs.onCreated.addListener(function(tab) {
 	killHistory(tab);
 });
+chrome.history.onVisited.addListener(function(item) {
+	//Kill history with virtual tab
+	killHistory({url: item.url});
+
+	//Process history
+	triggerHistoryProcessor(item);
+});
+
+window.addEventListener('message', function(event) {
+	let data = event.data;
+	if(data.apiItem.removalQueued) {
+		console.debug("History processor: Removing history item.", data.apiItem);
+		chrome.history.deleteUrl({url: data.item.url});
+	} else if(data.apiItem.url != data.item.url) {
+		console.debug("History processor: Changing URL from '" + data.item.url + "' to '" + data.apiItem.url + "'.");
+		chrome.history.deleteUrl({url: data.item.url});
+		chrome.history.addUrl({url: data.apiItem.url});
+	}
+});
+
+let sandboxIframe = null;
+function triggerHistoryProcessor(item) {
+	if(sandboxIframe == null)
+		sandboxIframe = document.getElementById("sandbox");
+
+	let apiItem = {
+		url: item.url,
+		title: item.title,
+		lastVisitTime: item.lastVisitTime,
+		visitCount: item.visitCount,
+		typedCount: item.typedCount
+	};
+
+	sandboxIframe.contentWindow.postMessage({code: historyProcessor, apiItem: apiItem, item: item}, '*');
+}
+
 function updateBadge(tab, dangerous) {
 	if(doBadge) {
 		if(dangerous) {
@@ -333,3 +404,4 @@ if(localStorage.getItem('install_time') == null)
 chrome.browserAction.onClicked.addListener(function(tab) {
 	chrome.runtime.openOptionsPage();
 });
+
