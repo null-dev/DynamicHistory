@@ -230,6 +230,7 @@ let doRegexDangerDomains;
 let doRegexSafeDomains;
 let doRegexDangerKeywords;
 let doCheckEntireUrl;
+let scanAll;
 
 let doPrefix;
 let doOutline;
@@ -255,6 +256,7 @@ function loadSettings() {
 		doRegexSafeDomains: false,
 		doRegexDangerKeywords: false,
 		doCheckEntireUrl: false,
+		scanAll: false,
 
 		doPrefix: true,
 		doOutline: true,
@@ -280,6 +282,7 @@ function loadSettings() {
 		doRegexSafeDomains = items.doRegexSafeDomains;
 		doRegexDangerKeywords = items.doRegexDangerKeywords;
 		doCheckEntireUrl = items.doCheckEntireUrl;
+		scanAll = items.scanAll;
 
 		doPrefix = items.doPrefix;
 		doOutline = items.doOutline;
@@ -298,17 +301,18 @@ function loadSettings() {
 		}
 	});
 }
-//Listener for receiving the HTML body from the content script
-function onTabUpdate(request, sender) {
-	if (request.action == "getSource") {
-		checkPage(sender.tab, request.source);
-	}
-}
-chrome.runtime.onMessage.addListener(onTabUpdate);
-//Listener for updating settings
+//Settings update and document body listener
 chrome.runtime.onMessage.addListener(function(request, sender) {
-	if(request.action == "updateSettings") {
+	if(request.action === "updateSettings") {
 		loadSettings();
+	} else if (request.action === "getSource") {
+		let scanTarget;
+		if(scanAll)
+			scanTarget = request.source;
+		else
+			scanTarget = request.textContent;
+
+		checkPage(sender.tab, scanTarget);
 	}
 });
 //Add listener for tab updates

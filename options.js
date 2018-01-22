@@ -30,6 +30,7 @@ function loadSettings() {
 		doRegexSafeDomains: false,
 		doRegexDangerKeywords: false,
 		doCheckEntireUrl: false,
+		scanAll: false,
 
 		doPrefix: true,
 		doOutline: true,
@@ -49,6 +50,7 @@ function loadSettings() {
 		$('#do_regex_safe_domains').prop('checked', items.doRegexSafeDomains);
 		$('#do_regex_danger_keywords').prop('checked', items.doRegexDangerKeywords);
 		$('#do_check_entire_url').prop('checked', items.doCheckEntireUrl);
+		$('#scan_all').prop('checked', items.scanAll);
 
 		$('#do_prefix').prop('checked', items.doPrefix);
 		$('#do_outline').prop('checked', items.doOutline);
@@ -81,6 +83,7 @@ function saveSettings() {
 		doRegexSafeDomains: $('#do_regex_safe_domains').prop('checked'),
 		doRegexDangerKeywords: $('#do_regex_danger_keywords').prop('checked'),
 		doCheckEntireUrl: $('#do_check_entire_url').prop('checked'),
+		scanAll: $('#scan_all').prop('checked'),
 
 		doPrefix: $('#do_prefix').prop('checked'),
 		doOutline: $('#do_outline').prop('checked'),
@@ -121,32 +124,37 @@ function pVal(a) {
 
 function bindHpTemplates() {
 	bindTemplate("Replace http with https", `
-		if(item.url.startsWith("http") && !item.url.startsWith("https"))
-		item.url = item.url.replace("http", "https");
-		`);
+if(item.url.startsWith("http") && !item.url.startsWith("https"))
+	item.url = item.url.replace("http", "https");
+`);
+
 	bindTemplate("Remove anchors", `
-		for(let i = item.url.length - 1; i >= 0; i--) {
-			let c = item.url[i];
-			if(c === '/') break;
-			if(c === '#') {
-				item.url = item.url.substring(0, i);
-				break;
-			}
-		}
+for(let i = item.url.length - 1; i >= 0; i--) {
+	let c = item.url[i];
+	if(c === '/') break;
+	if(c === '#') {
+		item.url = item.url.substring(0, i);
+		break;
+	}
+}
 		`);
+
 	bindTemplate("Replace all history entries with 'http://example.com/'", `
-		item.url = "http://example.com/";
+item.url = "http://example.com/";
 		`);
+
 	bindTemplate("Make all history entries link to the Wayback Machine", `
-		if(!item.url.startsWith("https://web.archive.org/web/*/"))
-		item.url = "https://web.archive.org/web/*/" + item.url;
+if(!item.url.startsWith("https://web.archive.org/web/*/"))
+	item.url = "https://web.archive.org/web/*/" + item.url;
 		`);
+
 	bindTemplate("Fill your history with Rick Rolls", `
-		if(!item.url.startsWith("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
-		item.url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ignored=" + Math.random();
+if(!item.url.startsWith("https://www.youtube.com/watch?v=dQw4w9WgXcQ"))
+	item.url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ignored=" + Math.random();
 		`);
+
 	bindTemplate("Leave no history (without using incognito mode)", `
-		item.remove();
+item.remove();
 		`);
 }
 

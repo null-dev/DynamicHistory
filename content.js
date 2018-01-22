@@ -11,7 +11,19 @@
 /**
  * Extension Content Script Helper
  */
-chrome.runtime.sendMessage({
-	action: "getSource",
-	source: document.documentElement.outerHTML
-});
+
+void function() {
+	let clonedDocument = document.documentElement.cloneNode(true);
+
+	//Remove script/style nodes
+	let excludedNodes = clonedDocument.querySelectorAll("script, style");
+	for(let i = 0; i < excludedNodes.length; i++) {
+		excludedNodes[i].remove();
+	}
+
+	chrome.runtime.sendMessage({
+		action: "getSource",
+		source: document.documentElement.outerHTML,
+		textContent: document.title + clonedDocument.textContent
+	});
+}();
