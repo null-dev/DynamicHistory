@@ -125,9 +125,9 @@
 
 			<h2>Display options</h2>
 			<h3>Append prefix:</h3>
-			Append a prefix to any tab that has it's history removed (buggy on some webpages): <input id="do_prefix" type="checkbox" /><br /><br />
+			Append a prefix to any tab that has it's history removed (buggy on some web pages): <input id="do_prefix" type="checkbox" /><br /><br />
 			<h3>Outline page:</h3>
-			Apply a colored outline to the page of any tab that has it's history removed (buggy on some webpages): <input id="do_outline" type="checkbox" /><br /><br />
+			Apply a colored outline to the page of any tab that has it's history removed (buggy on some web pages): <input id="do_outline" type="checkbox" /><br /><br />
 			<h3>Show badge:</h3>
 			Show a badge beside the DynamicHistory icon when viewing a tab that has it's history removed: <input id="do_badge" type="checkbox" /><br /><br />
 			<h3>Prefix text:</h3>
@@ -145,7 +145,7 @@
 
 			<h2>Advanced</h2>
 			<h3>Custom history processor:</h3>
-			Run a custom JavaScript function to modify history items as they are added to the history database:<br />
+			Run a custom JavaScript function to modify history items as they are added to the history database.<br><br><b>Take care when writing your own history processors</b>, as history processors are run continuously on a history entry until an iteration is reached where the entry is not modified by the history processor. When in doubt, open the console for the background page to monitor your history processor's activities so it doesn't end up in an infinite loop.<br />
 			<textarea id="history_processor" rows="10" cols="50" data-placeholder="Example:\n\n//Pretend that all the sites we visit are secure\nif(item.url.startsWith(&quot;http&quot;) && !item.url.startsWith(&quot;https&quot;))\n    item.url = item.url.replace('http', 'https');\n\n//Remove all FTP sites\nif(item.url.startsWith(&quot;ftp&quot;)\n    item.remove();"></textarea><br /><br />
 			<h3>History processor templates:</h3>
 			<div id="hp_templates">
@@ -163,7 +163,7 @@
 				</div>
 				<div class="modal-body">
 					<p>Are you sure you want to reset all settings to their default values?</p>
-					<p>This action is irreversable!</p>
+					<p>This action is irreversible!</p>
 				</div>
 				<div class="modal-footer">
 					<button id="clear_yes_btn">Yes</button>
