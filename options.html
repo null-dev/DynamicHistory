@@ -17,6 +17,8 @@
 		<title>DynamicHistory Settings</title>
 		<!-- JQuery 2.2.0 -->
 		<script src="jquery-2.2.0.min.js"></script>
+		<!-- Shared -->
+		<script src="shared.js"></script>
 		<!-- Core Javascript -->
 		<script src="options.js"></script>
 		<style>
@@ -111,7 +113,7 @@
 			Delete the history for a page containing any of the following words:<br />
 			<textarea id="bad_words" rows="5" data-placeholder="Example:\n\nhorrible\ndisgusting\nbad"></textarea><br /><br />
 
-			<h2>Regex matching (for advanced users only)</h2>
+			<h2>Matching options (for advanced users)</h2>
 			<h3>Regex 'Dangerous domains':</h3>
 			Use regex to match for dangerous domains: <input id="do_regex_danger_domains" type="checkbox" /><br /><br />
 			<h3>Regex 'Safe domains':</h3>
@@ -122,6 +124,8 @@
 			Check the entire URL (including protocol, path and query) when comparing domains. More useful if regex is enabled. <input id="do_check_entire_url" type="checkbox" /><br /><br />
 			<h3>Scan full HTML when matching 'Dangerous keywords':</h3>
 			Scan all HTML code instead of only scanning only visible text: <input id="scan_all" type="checkbox" /><br /><br />
+			<h3>Enable continuous matching:</h3>
+			Constantly monitor the page for any 'dangerous keywords'. May adversely affect browser performance. Enable this if DynamicHistory is not working on some pages. <input id="continuous_matching" type="checkbox" /><br /><br />
 
 			<h2>Display options</h2>
 			<h3>Append prefix:</h3>
@@ -130,6 +134,11 @@
 			Apply a colored outline to the page of any tab that has it's history removed (buggy on some web pages): <input id="do_outline" type="checkbox" /><br /><br />
 			<h3>Show badge:</h3>
 			Show a badge beside the DynamicHistory icon when viewing a tab that has it's history removed: <input id="do_badge" type="checkbox" /><br /><br />
+			<h3>Inject CSS:</h3>
+			Inject custom CSS into any page that has it's history removed: <input id="inject_css" type="checkbox" /><br /><br />
+			<h3>Inject JavaScript:</h3>
+			Inject custom JS into any page that has it's history removed: <input id="inject_js" type="checkbox" /><br /><br />
+
 			<h3>Prefix text:</h3>
 			The prefix to be appended if "Append Prefix" is enabled:<br />
 			<input id="prefix_text" type="text" /><br /><br />
@@ -141,11 +150,17 @@
 			<input id="badge_text" type="text" /><br /><br />
 			<h3>Badge color:</h3>
 			The color of the badge to show if "Show Badge" is enabled:<br />
-			<input id="badge_color" type="color" style="width: 100px">
+			<input id="badge_color" type="color" style="width: 100px"><br /><br />
+			<h3>CSS code:</h3>
+			The CSS to be injected if "Inject CSS" is enabled:
+			<textarea id="css_code" rows="5" data-placeholder="Example:\n\nbody {\n    filter: grayscale(100%);\n}"></textarea><br /><br />
+			<h3>JavaScript code:</h3>
+			The JavaScript to be injected if "Inject JavaScript" is enabled:
+			<textarea id="js_code" rows="5" data-placeholder="Example:\n\nalert(&quot;History removed!&quot;);"></textarea><br /><br />
 
 			<h2>Advanced</h2>
 			<h3>Custom history processor:</h3>
-			Run a custom JavaScript function to modify history items as they are added to the history database.<br><br><b>Take care when writing your own history processors</b>, as history processors are run continuously on a history entry until an iteration is reached where the entry is not modified by the history processor. When in doubt, open the console for the background page to monitor your history processor's activities so it doesn't end up in an infinite loop.<br />
+			Run a custom JavaScript function to modify history items as they are added to the history database.<br><br><b>Be careful when writing your own history processors</b>, as history processors are run continuously on a history entry until an iteration is reached where the entry is not modified by the history processor. When in doubt, open the console for the background page to monitor your history processor's activities so it doesn't end up in an infinite loop.<br />
 			<textarea id="history_processor" rows="10" cols="50" data-placeholder="Example:\n\n//Pretend that all the sites we visit are secure\nif(item.url.startsWith(&quot;http&quot;) && !item.url.startsWith(&quot;https&quot;))\n    item.url = item.url.replace('http', 'https');\n\n//Remove all FTP sites\nif(item.url.startsWith(&quot;ftp&quot;)\n    item.remove();"></textarea><br /><br />
 			<h3>History processor templates:</h3>
 			<div id="hp_templates">

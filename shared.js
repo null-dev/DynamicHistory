@@ -9,22 +9,34 @@
  * SOFTWARE.
  */
 /**
- * Extension Content Script Helper
+ * Shared JS
  */
 
-void function() {
-	//TODO It would be preferable to deduplicate this code
-	let clonedDocument = document.documentElement.cloneNode(true);
+function DEFAULT_OPTIONS() {
+	return {
+		dangerDomains: '',
+		safeDomains: '',
+		badWords: '',
+		historyProcessor: '',
 
-	//Remove script/style nodes
-	let excludedNodes = clonedDocument.querySelectorAll("script, style");
-	for(let i = 0; i < excludedNodes.length; i++) {
-		excludedNodes[i].remove();
-	}
+		doRegexDangerDomains: false,
+		doRegexSafeDomains: false,
+		doRegexDangerKeywords: false,
+		doCheckEntireUrl: false,
+		scanAll: false,
+		continuousMatching: false,
 
-	chrome.runtime.sendMessage({
-		action: "getSource",
-		source: document.documentElement.outerHTML,
-		textContent: document.title + clonedDocument.textContent
-	});
-}();
+		doPrefix: true,
+		doOutline: true,
+		doBadge: true,
+		injectCss: false,
+		injectJs: false,
+
+		prefixText: '[DH] ',
+		outlineColor: '#ff0000',
+		badgeText: '!',
+		badgeColor: '#ff0000',
+		cssCode: '',
+		jsCode: ''
+	};
+}

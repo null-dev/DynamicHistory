@@ -12,6 +12,8 @@
  * Background JS
  */
 
+let isChrome = typeof browser === "undefined";
+
 //Check if a tab should have it's history killed by checking it's HTML
 function killHistory(tab) {
 	//Check if tab is undefined
@@ -21,76 +23,118 @@ function killHistory(tab) {
 	checkPage(tab, null);
 
 	//Inject content script
-	if(tab.id != null)
-		chrome.tabs.executeScript(tab.id, {
-			file: "content.js"
-		}, function() {
-			// If you try and inject into an extensions page or the webstore/NTP you'll get an error
-			if (chrome.runtime.lastError) {
-				console.log("Error injecting script!", chrome.runtime.lastError)
-			}
-		});
+	if(tab.id != null) {
+		if(opt.continuousMatching) {
+			chrome.tabs.executeScript(tab.id, {
+				file: "dynamicdetection.js"
+			}, function() {
+				// If you try and inject into an extensions page or the webstore/NTP you'll get an error
+				if (chrome.runtime.lastError) {
+					console.log("Error injecting dynamic detection script!", chrome.runtime.lastError)
+				}
+			});
+		} else {
+			chrome.tabs.executeScript(tab.id, {
+				file: "content.js"
+			}, function() {
+				// If you try and inject into an extensions page or the webstore/NTP you'll get an error
+				if (chrome.runtime.lastError) {
+					console.log("Error injecting script!", chrome.runtime.lastError)
+				}
+			});
+		}
+	}
 }
 
 //Check a page if it matches the history filters
 function checkPage(tab, theHtml) {
 	if(tab.url == null) return;
 	let pageDomain = extractDomain(tab.url);
-	if(isDangerous(tab, theHtml)) {
+	let result = isDangerous(tab, theHtml);
+	if(result.result) {
 		//Dangerous
 		removeHistory(tab.url);
 		if(tab.id != null) {
 			markPage(tab);
-			tabMap[tab.id] = tab.url;
+			releaseTabMapEntry();
+			tabMap[tab.id] = {
+				url: tab.url,
+				reason: result.reason,
+				status: true
+			};
 		}
 	} else {
 		//Safe
-		if(tab.id != null)
+		if(tab.id != null) {
+			releaseTabMapEntry();
+			tabMap[tab.id] = {
+				url: tab.url,
+				reason: result.reason,
+				status: false
+			};
 			releaseTab(tab);
+		}
 	}
+
+	//Update popup
+	updatePopup();
 }
 
 //Check HTML
 function isDangerous(tab, theHtml) {
 	//Get domain
-	if(tab.url == null) return false;
+	if(tab.url == null) return {
+		result: false,
+		reason: "Tab URL is null"
+	};
+
 	let pageDomain;
-	if(doCheckEntireUrl)
+	if(opt.doCheckEntireUrl)
 		pageDomain = tab.url
 	else
 		pageDomain = extractDomain(tab.url);
 
 	//Test ignore domains
-	if (doRegexSafeDomains) {
-		if (batchTest(safeDomains, pageDomain))
-			return false;
+	if (opt.doRegexSafeDomains) {
+		let result = batchTest(safeDomains, pageDomain);
+		if (result.result)
+			return {result: false, reason: "Domain matches safe domain regex: " + result.item};
 	} else {
-		if(contains(safeDomains, pageDomain))
-			return false;
+		let result = contains(safeDomains, pageDomain);
+		if (result.result)
+			return {result: false, reason: "Domain is safe domain: " + result.item};
 	}
 
 	//Test danger domains
-	if (doRegexDangerDomains) {
-		if (batchTest(dangerDomains, pageDomain))
-			return true;
+	if (opt.doRegexDangerDomains) {
+		let result = batchTest(dangerDomains, pageDomain);
+		if (result.result)
+			return {result: true, reason: "Domain matches dangerous domain regex: " + result.item};
 	} else {
-		if(contains(dangerDomains, pageDomain))
-			return true;
+		let result = contains(dangerDomains, pageDomain);
+		if (result.result)
+			return {result: true, reason: "Domain is dangerous domain: " + result.item};
 	}
 
 	if(theHtml != null) {
 		//Test keywords
-		if(doRegexDangerKeywords) {
-			if(batchTest(badWords, theHtml))
-				return true;
+		if(opt.doRegexDangerKeywords) {
+			let result = batchTest(badWords, theHtml);
+			if (result.result)
+				return {result: true, reason: "HTML matches dangerous keyword regex: " + result.item};
 		} else {
-			if(stringContainsAnyStringsOfArrayOfStrings(theHtml, badWords)
-				|| stringContainsAnyStringsOfArrayOfStrings(theHtml, escapedBadWords))
-				return true;
+			let result = stringContainsAnyStringsOfArrayOfStrings(theHtml, badWords);
+			if(!result.result) {
+				result = stringContainsAnyStringsOfArrayOfStrings(theHtml, escapedBadWords);
+				if(result.result)
+					return {result: true, reason: "Dangerous keyword (escaped) found on page: " + result.item};
+			} else {
+				return {result: true, reason: "Dangerous keyword found on page: " + result.item};
+			}
 		}
 	}
 
-	return false;
+	return {result: false, reason: "Page does not match any dangerous keywords or domains"};
 }
 
 //Remove the history for a url
@@ -98,23 +142,63 @@ function removeHistory(url) {
 	let details = {url:url};
 	chrome.history.deleteUrl(details);
 }
+
+let injectedTabIds = [];
+
 let tabMap = {};
 //Mark a page as dangerous
 function markPage(tab) {
-	if(doPrefix) {
+	if(opt.doPrefix) {
 		chrome.tabs.executeScript(tab.id, {
-			code: "document.title = \"" + prefixText + "\" + document.title"
+			code: "void function(a){if(!document.title.startsWith(a)) document.title = a + document.title;}(\"" + escapeQuotes(opt.prefixText) + "\");"
 		});
 	}
-	if(doOutline) {
+	if(opt.doOutline) {
 		chrome.tabs.executeScript(tab.id, {
-			code: "document.body.style.border = '5px solid " + outlineColor + "';"
+			code: "document.body.style.border = '5px solid " + opt.outlineColor + "';"
+		});
+	}
+	if(opt.injectCss) {
+		let cssObj = { code: opt.cssCode };
+		let afterRemove = function() {
+			chrome.tabs.insertCSS(tab.id, cssObj);
+		};
+
+		//Firefox uses promises, chrome uses callback
+		if(isChrome) {
+			//Not yet implemented: https://bugs.chromium.org/p/chromium/issues/detail?id=608854
+			//chrome.tabs.removeCSS(tab.id, cssObj, afterRemove);
+			afterRemove();
+		} else {
+			chrome.tabs.removeCSS(tab.id, cssObj).then(afterRemove, afterRemove);
+		}
+	}
+	if(opt.injectJs) {
+		let dhVar = "window._DynamicHistory_" + tab.id;
+		chrome.tabs.executeScript(tab.id, {
+			code: "void function() {if(" + dhVar + " == null){" + dhVar + " = 1;" + opt.jsCode + "}}();"
 		});
 	}
 	updateBadge(tab, true);
 }
+
+function escapeQuotes(js) {
+	return js.replace('"', '\\"');
+}
+
 //Declare a tab as safe now
 function releaseTab(tab) {
+	//TODO Possible revert CSS changes?
+	/*if(opt.doOutline) {
+		chrome.tabs.executeScript(tab.id, {
+			code: "document.body.style.border = null;"
+		});
+	}
+	if(opt.injectCss) {
+		//TODO Not yet implemented on Chrome: https://bugs.chromium.org/p/chromium/issues/detail?id=608854
+		if(!isChrome)
+			chrome.tabs.removeCSS(tab.id, { code: opt.cssCode });
+	}*/
 	updateBadge(tab, false);
 }
 //Entity map for html escaping
@@ -158,12 +242,15 @@ function batchTest(regexes, string) {
 				regexCache[regexString] = regex;
 			}
 
-			if (regex.test(string)) return true;
+			if (regex.test(string)) return {
+				item: regexString,
+				result: true
+			};
 		} catch (e) {
 			console.log("Regex error!", e);
 		}
 	}
-	return false;
+	return {result: false};
 }
 
 //Extract domain from url
@@ -186,10 +273,10 @@ function contains(a, obj) {
 	let i = a.length;
 	while (i--) {
 		if (a[i] === obj) {
-			return true;
+			return {result: true, item: a[i]};
 		}
 	}
-	return false;
+	return {result: false};
 }
 function stringsContainString(a, obj) {
 	let i = a.length;
@@ -204,10 +291,10 @@ function stringContainsAnyStringsOfArrayOfStrings(a, obj) {
 	let i = obj.length;
 	while(i--) {
 		if(a.indexOf(obj[i]) > -1) {
-			return true;
+			return {result: true, item: obj[i]};
 		}
 	}
-	return false;
+	return {result: false};
 }
 function cleanArray(arr, deleteValue) {
 	for (let i = 0; i < arr.length; i++) {
@@ -218,6 +305,7 @@ function cleanArray(arr, deleteValue) {
 	}
 	return this;
 };
+
 //Global variables
 let splitElement = "\n";
 let dangerDomains;
@@ -226,47 +314,16 @@ let badWords;
 let escapedBadWords;
 let historyProcessor;
 
-let doRegexDangerDomains;
-let doRegexSafeDomains;
-let doRegexDangerKeywords;
-let doCheckEntireUrl;
-let scanAll;
+let opt; //Master options variable
 
-let doPrefix;
-let doOutline;
-let doBadge;
-
-let prefixText;
-let outlineColor;
-let badgeColor;
-let badgeText;
 //Get proper storage mechanism
 function storage() {
 	return chrome.storage.sync || chrome.storage.local;
 }
+
 //Load settings
 function loadSettings() {
-	storage().get({
-		dangerDomains: '',
-		safeDomains: '',
-		badWords: '',
-		historyProcessor: '',
-
-		doRegexDangerDomains: false,
-		doRegexSafeDomains: false,
-		doRegexDangerKeywords: false,
-		doCheckEntireUrl: false,
-		scanAll: false,
-
-		doPrefix: true,
-		doOutline: true,
-		doBadge: true,
-
-		prefixText: '[DH] ',
-		outlineColor: '#ff0000',
-		badgeText: '!',
-		badgeColor: '#ff0000'
-	}, function(items) {
+	storage().get(DEFAULT_OPTIONS(), function(items) {
 		//Clear regex cache
 		regexCache = [];
 
@@ -278,27 +335,14 @@ function loadSettings() {
 		cleanArray(badWords, '');
 		historyProcessor = items.historyProcessor;
 
-		doRegexDangerDomains = items.doRegexDangerDomains;
-		doRegexSafeDomains = items.doRegexSafeDomains;
-		doRegexDangerKeywords = items.doRegexDangerKeywords;
-		doCheckEntireUrl = items.doCheckEntireUrl;
-		scanAll = items.scanAll;
-
-		doPrefix = items.doPrefix;
-		doOutline = items.doOutline;
-		doBadge = items.doBadge;
-
-		prefixText = items.prefixText;
-		outlineColor = items.outlineColor;
-		badgeText = items.badgeText;
-		badgeColor = items.badgeColor;
-
 		//Escape bad words
 		escapedBadWords = [];
 		let i = badWords.length;
 		while(i--) {
 			escapedBadWords.push(escapeHtml(badWords[i]));
 		}
+
+		opt = items;
 	});
 }
 //Settings update and document body listener
@@ -307,23 +351,38 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 		loadSettings();
 	} else if (request.action === "getSource") {
 		let scanTarget;
-		if(scanAll)
+		if(opt.scanAll)
 			scanTarget = request.source;
 		else
 			scanTarget = request.textContent;
 
 		checkPage(sender.tab, scanTarget);
+	} else if(request.action === "getTabInfo") {
+		updatePopup();
 	}
 });
+
+function updatePopup() {
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+		let entry = tabMap[tabs[0].id];
+
+		if(entry != null)
+			chrome.runtime.sendMessage({
+				action: "updateTabInfo",
+				reason: entry.reason,
+				status: entry.status
+			});
+		else
+			chrome.runtime.sendMessage({
+				action: "updateTabInfo",
+				reason: "DynamicHistory is still processing this page",
+				status: false
+			});
+	});
+}
+
 //Add listener for tab updates
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	if(tab != null && tab.url != null) {
-		if(tabMap[tabId]) {
-			removeHistory(tabMap[tabId]);
-			tabMap[tabId] = undefined;
-		}
-	}
-
 	//Ignore if only the title updated (we modify the title sometimes so we might get into a loop)
 	let isTitleUpdate = changeInfo.title != null;
 	for(let property in changeInfo) {
@@ -335,6 +394,20 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	if(!isTitleUpdate)
 		killHistory(tab);
 });
+
+function releaseTabMapEntry(tabId) {
+	if(tabMap[tabId] != null) {
+		if(tabMap[tabId].status)
+			removeHistory(tabMap[tabId].url);
+
+		tabMap[tabId] = undefined;
+	}
+}
+
+chrome.tabs.onRemoved.addListener(function(tabId) {
+	releaseTabMapEntry(tabId);
+});
+
 chrome.tabs.onCreated.addListener(function(tab) {
 	killHistory(tab);
 });
@@ -375,10 +448,10 @@ function triggerHistoryProcessor(item) {
 }
 
 function updateBadge(tab, dangerous) {
-	if(doBadge) {
+	if(opt.doBadge) {
 		if(dangerous) {
-			chrome.browserAction.setBadgeBackgroundColor({color:badgeColor, tabId: tab.id});
-			chrome.browserAction.setBadgeText({text:badgeText, tabId: tab.id});
+			chrome.browserAction.setBadgeBackgroundColor({color:opt.badgeColor, tabId: tab.id});
+			chrome.browserAction.setBadgeText({text:opt.badgeText, tabId: tab.id});
 		} else {
 			chrome.browserAction.setBadgeText({text:'', tabId: tab.id});
 		}
@@ -393,7 +466,7 @@ function installNotice() {
 	chrome.storage.local.set({installTime: now}, function() {});
 
 	//If we are using chrome, notify the user of the chrome bug, otherwise open options page
-	if (typeof browser === "undefined")
+	if (isChrome)
 		chrome.tabs.create({url: "oninstall.html"});
 	else
 		chrome.runtime.openOptionsPage();
@@ -405,7 +478,7 @@ if(localStorage.getItem('install_time') == null)
 	});
 
 //Open options page onclick
-chrome.browserAction.onClicked.addListener(function(tab) {
+/*chrome.browserAction.onClicked.addListener(function(tab) {
 	chrome.runtime.openOptionsPage();
-});
+});*/
 
