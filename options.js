@@ -243,7 +243,7 @@ jQuery(document).ready(function () {
 	bindHpTemplates();
 
 	//Show oninstall link if chrome
-	if (typeof browser === "undefined")
+	if (isChrome)
 		$("#oninstall_link").show();
 
 	//Load initial settings
@@ -267,6 +267,9 @@ jQuery(document).ready(function () {
 		readBackup(fileInput);
 	});
 
+	//Disable history processor on firefix (no eval)
+	if(!isChrome)
+		$("#custom_hist_proc").hide();
 });
 
 function readBackup(element) {

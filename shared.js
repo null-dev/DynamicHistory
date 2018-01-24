@@ -12,6 +12,8 @@
  * Shared JS
  */
 
+let isChrome = typeof browser === "undefined";
+
 function DEFAULT_OPTIONS() {
 	return {
 		dangerDomains: '',

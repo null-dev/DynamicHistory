@@ -12,8 +12,6 @@
  * Background JS
  */
 
-let isChrome = typeof browser === "undefined";
-
 //Check if a tab should have it's history killed by checking it's HTML
 function killHistory(tab) {
 	//Check if tab is undefined
@@ -164,13 +162,11 @@ function markPage(tab) {
 			chrome.tabs.insertCSS(tab.id, cssObj);
 		};
 
-		//Firefox uses promises, chrome uses callback
 		if(isChrome) {
 			//Not yet implemented: https://bugs.chromium.org/p/chromium/issues/detail?id=608854
-			//chrome.tabs.removeCSS(tab.id, cssObj, afterRemove);
 			afterRemove();
 		} else {
-			chrome.tabs.removeCSS(tab.id, cssObj).then(afterRemove, afterRemove);
+			chrome.tabs.removeCSS(tab.id, cssObj, afterRemove);
 		}
 	}
 	if(opt.injectJs) {
@@ -364,6 +360,9 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 
 function updatePopup() {
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+		//No active tab!
+		if(tabs.length <= 0) return;
+
 		let entry = tabMap[tabs[0].id];
 
 		if(entry != null)
@@ -433,6 +432,10 @@ window.addEventListener('message', function(event) {
 
 let sandboxIframe = null;
 function triggerHistoryProcessor(item) {
+	//Do not execute empty history processor
+	if(historyProcessor.trim().length <= 0)
+		return;
+
 	if(sandboxIframe == null)
 		sandboxIframe = document.getElementById("sandbox");
 
@@ -476,9 +479,3 @@ if(localStorage.getItem('install_time') == null)
 		if(items.installTime === -1)
 			installNotice();
 	});
-
-//Open options page onclick
-/*chrome.browserAction.onClicked.addListener(function(tab) {
-	chrome.runtime.openOptionsPage();
-});*/
-
