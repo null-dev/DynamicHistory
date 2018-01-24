@@ -17,6 +17,8 @@
 		<title>DynamicHistory Settings</title>
 		<!-- JQuery 2.2.0 -->
 		<script src="jquery-2.2.0.min.js"></script>
+		<!-- Moment -->
+		<script src="moment.min.js"></script>
 		<!-- Shared -->
 		<script src="shared.js"></script>
 		<!-- Core Javascript -->
@@ -57,8 +59,15 @@
 
 .modal-header {
 	padding: 2px 16px;
-	background-color: #f44336;
 	color: white;
+}
+
+#clear_modal .modal-header {
+	background-color: #f44336;
+}
+
+#restore_modal .modal-header {
+	background-color: #4caf50;
 }
 
 .modal-body {padding: 2px 16px;}
@@ -167,7 +176,12 @@
 			</div>
 
 			<h2>Useful actions</h2>
-			<button id="clear_btn">Reset All Settings</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="oninstall_link" style="display:none" href="oninstall.html">View Installation Instructions</a>
+			<button id="clear_btn">Reset All Settings</button>
+			<button id="backup_btn">Backup Settings</button>
+			<button id="restore_btn">Restore Settings</button>
+			<input id="file_input" style="display:none" type="file" id="file-input" />
+			<br /><br />
+			<a id="oninstall_link" style="display:none" href="oninstall.html">View Installation Instructions</a>
 		</div>
 
 		<div id="clear_modal" class="modal">
@@ -183,6 +197,20 @@
 				<div class="modal-footer">
 					<button id="clear_yes_btn">Yes</button>
 					<button id="clear_no_btn">No</button>
+				</div>
+			</div>
+		</div>
+		<div id="restore_modal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="close">&times;</span>
+					<h2>Restore complete!</h2>
+				</div>
+				<div class="modal-body">
+					<p>Your settings have been restored!</p>
+				</div>
+				<div class="modal-footer">
+					<button id="restore_close_btn">Close</button>
 				</div>
 			</div>
 		</div>

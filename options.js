@@ -19,7 +19,7 @@ function storage() {
 }
 
 //Load settings
-function loadSettings() {
+function loadSettings(callback) {
 	storage().get(DEFAULT_OPTIONS(), function(items) {
 		$('#danger_domains').val(items.dangerDomains);
 		$('#safe_domains').val(items.safeDomains);
@@ -54,6 +54,9 @@ function loadSettings() {
 				$(this).css('color', 'grey');
 			}
 		});
+
+		if(callback)
+			callback();
 	});
 }
 //Save settings
@@ -81,8 +84,8 @@ function saveSettings() {
 		outlineColor: $('#outline_color').val(),
 		badgeText: $('#badge_text').val(),
 		badgeColor: $('#badge_color').val(),
-		cssCode: $('#css_code').val(),
-		jsCode: $('#js_code').val()
+		cssCode: ignoreP($('#css_code')),
+		jsCode: ignoreP($('#js_code'))
 	}, function() {
 		//Update background page
 		chrome.runtime.sendMessage({
@@ -90,6 +93,7 @@ function saveSettings() {
 		});
 	});
 }
+
 //Update disabled inputs and stuff
 function updateInputStates() {
 	$('#prefix_text').attr("disabled", !$("#do_prefix").is(":checked"));
@@ -170,34 +174,39 @@ function bindTemplate(name, code) {
 	t.appendChild(document.createElement("br"));
 }
 
+function scrollToTop() {
+	//Scroll to top hack
+	$("#body").css("height", "500px");
+	$("#body").css("overflow-y", "hidden");
+	setTimeout(function() {
+		$("#body").css("height", "");
+		$("#body").css("overflow-y", "visible");
+	}, 100);
+}
+
 jQuery(document).ready(function () {
 	//Hook placeholders
 	$('textarea').focus(function(){
 		if($(this).val() === pVal($(this))){
 			$(this).val('');
-			$(this).css('color', 'black');
 		}
+		$(this).css('color', 'black');
 	});
 	$('textarea').blur(function(){
-		if($(this).val() ===''){
+		if($(this).val() === ''){
 			$(this).val(pVal($(this)));
 			$(this).css('color', 'grey');
 		}    
 	});
 
 	//Allows resetting of all settings
+	let clearModal = $("#clear_modal");
 	$("#clear_btn").click(function () {
-		$("#clear_modal").show();
-		//Scroll to top hack
-		$("#body").css("height", "500px");
-		$("#body").css("overflow-y", "hidden");
-		setTimeout(function() {
-			$("#body").css("height", "");
-			$("#body").css("overflow-y", "visible");
-		}, 100);
+		clearModal.show();
+		scrollToTop();
 	});
 	let hideModal = function() {
-		$("#clear_modal").hide();
+		clearModal.hide();
 	};
 	$("#clear_modal .close").click(hideModal);
 	$("#clear_no_btn").click(hideModal);
@@ -239,4 +248,61 @@ jQuery(document).ready(function () {
 
 	//Load initial settings
 	loadSettings();
+
+	$('#backup_btn').click(function() {
+		storage().get(DEFAULT_OPTIONS(), function(items) {
+			dlFile("DynamicHistory_" + moment().format() + ".json", JSON.stringify(items));
+		});
+	});
+
+	let fileInput = $('#file_input');
+
+	$('#restore_btn').click(function() {
+		//Clear old restore
+		fileInput.prop('value', null);
+		fileInput.click();
+	});
+
+	fileInput.on('change', function() {
+		readBackup(fileInput);
+	});
+
 });
+
+function readBackup(element) {
+	let file = element[0].files[0]
+	if (file) {
+		let fr = new FileReader();
+		fr.onload = function(e) {
+			storage().set(JSON.parse(e.target.result), function() {
+				loadSettings(function() {
+					saveAndUpdate();
+					let restoreModal = $("#restore_modal");
+					restoreModal.show();
+					scrollToTop();
+
+					//Hack to trigger textarea placeholder updaters
+					$('textarea').focus();
+					$('textarea').blur();
+
+					let hideModal = function() {
+						restoreModal.hide();
+					};
+					$("#restore_modal .close").click(hideModal);
+					$("#restore_close_btn").click(hideModal);
+				});
+			});
+		};
+		fr.readAsText(file);
+	}
+}
+
+function dlFile(filename, data) {
+	let blob = new Blob([data], {type: 'text/json'});
+	let elem = window.document.createElement('a');
+	elem.href = window.URL.createObjectURL(blob);
+	elem.download = filename;        
+	document.body.appendChild(elem);
+	elem.click();        
+	elem.remove();
+}
