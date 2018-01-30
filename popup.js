@@ -8,6 +8,12 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 		}
 		document.getElementById("status").textContent = status;
 		document.getElementById("reason").textContent = request.reason;
+
+		let targetText = request.target;
+		if(targetText == null)
+			targetText = "";
+
+		document.getElementById("target").textContent = targetText;
 	}
 });
 

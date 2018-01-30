@@ -58,6 +58,7 @@ function checkPage(tab, theHtml) {
 			tabMap[tab.id] = {
 				url: tab.url,
 				reason: result.reason,
+				target: result.target,
 				status: true
 			};
 		}
@@ -68,6 +69,7 @@ function checkPage(tab, theHtml) {
 			tabMap[tab.id] = {
 				url: tab.url,
 				reason: result.reason,
+				target: result.target,
 				status: false
 			};
 			releaseTab(tab);
@@ -96,22 +98,22 @@ function isDangerous(tab, theHtml) {
 	if (opt.doRegexSafeDomains) {
 		let result = batchTest(safeDomains, pageDomain);
 		if (result.result)
-			return {result: false, reason: "Domain matches safe domain regex: " + result.item};
+			return {result: false, reason: "Domain matches safe domain regex: ", target: result.item};
 	} else {
 		let result = contains(safeDomains, pageDomain);
 		if (result.result)
-			return {result: false, reason: "Domain is safe domain: " + result.item};
+			return {result: false, reason: "Domain is safe domain: ", target: result.item};
 	}
 
 	//Test danger domains
 	if (opt.doRegexDangerDomains) {
 		let result = batchTest(dangerDomains, pageDomain);
 		if (result.result)
-			return {result: true, reason: "Domain matches dangerous domain regex: " + result.item};
+			return {result: true, reason: "Domain matches dangerous domain regex: ", target: result.item};
 	} else {
 		let result = contains(dangerDomains, pageDomain);
 		if (result.result)
-			return {result: true, reason: "Domain is dangerous domain: " + result.item};
+			return {result: true, reason: "Domain is dangerous domain: ", target: result.item};
 	}
 
 	if(theHtml != null) {
@@ -119,15 +121,15 @@ function isDangerous(tab, theHtml) {
 		if(opt.doRegexDangerKeywords) {
 			let result = batchTest(badWords, theHtml);
 			if (result.result)
-				return {result: true, reason: "HTML matches dangerous keyword regex: " + result.item};
+				return {result: true, reason: "HTML matches dangerous keyword regex: ", target: result.item};
 		} else {
 			let result = stringContainsAnyStringsOfArrayOfStrings(theHtml, badWords);
 			if(!result.result) {
 				result = stringContainsAnyStringsOfArrayOfStrings(theHtml, escapedBadWords);
 				if(result.result)
-					return {result: true, reason: "Dangerous keyword (escaped) found on page: " + result.item};
+					return {result: true, reason: "Dangerous keyword (escaped) found on page: ", target: result.item};
 			} else {
-				return {result: true, reason: "Dangerous keyword found on page: " + result.item};
+				return {result: true, reason: "Dangerous keyword found on page: ", target: result.item};
 			}
 		}
 	}
@@ -369,6 +371,7 @@ function updatePopup() {
 			chrome.runtime.sendMessage({
 				action: "updateTabInfo",
 				reason: entry.reason,
+				target: entry.target,
 				status: entry.status
 			});
 		else
