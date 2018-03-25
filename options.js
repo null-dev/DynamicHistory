@@ -254,7 +254,7 @@ jQuery(document).ready(function () {
 	$("textarea").on('change keyup paste', function() {
 		saveAndUpdate();
 	});
-	$( window ).unload(function() {
+	$( window ).on("unload", function() {
 		saveAndUpdate();
 	});
 
