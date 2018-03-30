@@ -17,9 +17,14 @@ void function() {
 	let clonedDocument = document.documentElement.cloneNode(true);
 
 	//Remove script/style nodes
-	let excludedNodes = clonedDocument.querySelectorAll("script, style");
+	let excludedNodes = clonedDocument.querySelectorAll("script, style, object, video, audio, img, source");
 	for(let i = 0; i < excludedNodes.length; i++) {
-		excludedNodes[i].remove();
+		let thisNode = excludedNodes[i];
+		thisNode.remove();
+		// Browser does not unload video after removal from DOM
+		// We have to unload it ourselves :(
+		try { thisNode.pause(); } catch(e) {}
+		try { thisNode.src = ""; } catch(e) {}
 	}
 
 	chrome.runtime.sendMessage({
