@@ -12,12 +12,6 @@
  * Core JS for Settings
  */
 
-//Get proper storage mechanism
-function storage() {
-	//Attempt to use synced storage, otherwise fallback to local storage
-	return chrome.storage.sync || chrome.storage.local;
-}
-
 //Load settings
 function loadSettings(callback) {
 	storage().get(DEFAULT_OPTIONS(), function(items) {
@@ -230,7 +224,7 @@ jQuery(document).ready(function () {
 	$("#clear_modal .close").click(hideModal);
 	$("#clear_no_btn").click(hideModal);
 	$("#clear_yes_btn").click(function() {
-		chrome.storage.sync.clear(function() {
+		storage().clear(function() {
 			loadSettings();
 		});
 		hideModal();

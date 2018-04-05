@@ -314,11 +314,6 @@ let historyProcessor;
 
 let opt; //Master options variable
 
-//Get proper storage mechanism
-function storage() {
-	return chrome.storage.sync || chrome.storage.local;
-}
-
 //Load settings
 function loadSettings() {
 	storage().get(DEFAULT_OPTIONS(), function(items) {
