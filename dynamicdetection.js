@@ -2,7 +2,7 @@ void function() {
 	//Do not inject twice
 	if(window._DynamicHistory_observer != null) return;
 
-	var config = {
+	let config = {
 		attributes: true,
 		childList: true,
 		characterData: true,
@@ -25,19 +25,17 @@ void function() {
 		postChange();
 	});
 
+	let parser = new DOMParser(); 
+
 	let postChange = function() {
 		//TODO It would be preferable to deduplicate this code
-		let clonedDocument = document.documentElement.cloneNode(true);
+		let clonedDocument = parser.parseFromString(document.documentElement.outerHTML, "text/html");
 
 		//Remove script/style nodes
 		let excludedNodes = clonedDocument.querySelectorAll("script, style, object, video, audio, img, source");
 		for(let i = 0; i < excludedNodes.length; i++) {
 			let thisNode = excludedNodes[i];
 			thisNode.remove();
-			// Browser does not unload video after removal from DOM
-			// We have to unload it ourselves :(
-			try { thisNode.pause(); } catch(e) {}
-			try { thisNode.src = ""; } catch(e) {}
 		}
 
 		chrome.runtime.sendMessage({
