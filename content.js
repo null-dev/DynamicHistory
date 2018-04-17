@@ -26,6 +26,6 @@ void function() {
 	chrome.runtime.sendMessage({
 		action: "getSource",
 		source: document.documentElement.outerHTML,
-		textContent: document.title + clonedDocument.textContent
+		textContent: document.title + clonedDocument.documentElement.textContent
 	});
 }();
