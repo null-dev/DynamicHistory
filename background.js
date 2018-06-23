@@ -225,7 +225,7 @@ function batchTest(regexes, string) {
 			//Find regex in cache
 			let regex = regexCache[regexString];
 			if(regex == null) {
-				let tempRegexIndexer = regexString.replace("\\/", "aa");
+				let tempRegexIndexer = regexString.replace(/\\\//g, "aa");
 				let firstSlash = tempRegexIndexer.indexOf("/");
 				let secondSlash = tempRegexIndexer.indexOf("/", firstSlash + 1);
 				if(firstSlash < 0)
