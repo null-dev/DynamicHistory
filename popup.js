@@ -1,13 +1,13 @@
 chrome.runtime.onMessage.addListener(function(request, sender) {
 	if(request.action == "updateTabInfo") {
-		let color;
+		let className;
 		let status;
 		if(request.status) {
-			status = "DynamicHistory is hiding this page's history!";
-			color = "red";
+			status = "DynamicHistory has removed this page from history!";
+			className = "removed";
 		} else {
-			status = "DynamicHistory is NOT hiding this page's history.";
-			color = "green";
+			status = "DynamicHistory has NOT removed this page from history.";
+			className = "notremoved";
 		}
 		document.getElementById("status").textContent = status;
 		document.getElementById("reason").textContent = request.reason;
@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 
 		let target = document.getElementById("target");
 
-		target.style.color = color;
+		target.className = className;
 		target.textContent = targetText;
 	}
 });

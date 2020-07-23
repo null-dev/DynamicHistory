@@ -1,6 +1,6 @@
 {
 	"manifest_version": 2,
-	"applications": {
+	"browser_specific_settings": {
 		"gecko": {
 			"id": "@dynamichistory"
 		}
@@ -15,7 +15,6 @@
 		"chrome_style": true,
 		"browser_style": true
 	},
-
 	"permissions": [
 		"activeTab",
 		"tabs",
@@ -33,12 +32,35 @@
 		"page": "background.html"
 	},
 	"browser_action": {
+		"browser_style": true,
 		"default_icon": {
 			"16": "icon16.png",
 			"32": "icon32.png",
 			"48": "icon48.png",
 			"128": "icon128.png"
 		},
+		"theme_icons": [
+			{
+				"dark": "icon16.png",
+				"light": "icon16light.png",
+				"size": 16
+			},
+			{
+				"dark": "icon32.png",
+				"light": "icon32light.png",
+				"size": 32
+			},
+			{
+				"dark": "icon48.png",
+				"light": "icon48light.png",
+				"size": 48
+			},
+			{
+				"dark": "icon128.png",
+				"light": "icon128light.png",
+				"size": 128
+			}
+		],
 		"default_popup": "popup.html"
 	},
 	"sandbox": {

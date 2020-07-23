@@ -280,7 +280,7 @@ jQuery(document).ready(function () {
 		readBackup(fileInput);
 	});
 
-	//Disable history processor on firefix (no eval)
+	//Disable history processor on Firefox (no eval)
 	if(!isChrome)
 		$("#custom_hist_proc").hide();
 });

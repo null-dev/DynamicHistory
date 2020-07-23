@@ -15,206 +15,451 @@
 <html>
 	<head>
 		<title>DynamicHistory Settings</title>
-		<!-- JQuery -->
-		<script src="jquery-3.3.1.min.js"></script>
-		<!-- Moment -->
+		<!-- JQuery 3.5.1 -->
+		<script src="jquery-3.5.1.min.js"></script>
+		<!-- Moment 2.27.0 -->
 		<script src="moment.min.js"></script>
 		<!-- Shared -->
 		<script src="shared.js"></script>
 		<!-- Core Javascript -->
 		<script src="options.js"></script>
 		<style>
-#body h3 {margin: 0; padding:0;}
-#body h2, #body h1 {
-	font-weight: bold;
-	border-bottom: 1px solid grey;
-}
-.modal {
-	display: none; /* Hidden by default */
-	position: fixed; /* Stay in place */
-	z-index: 1; /* Sit on top */
-	left: 0;
-	top: 0;
-	width: 100%; /* Full width */
-	height: 100%; /* Full height */
-	overflow: auto; /* Enable scroll if needed */
-	background-color: rgb(0,0,0); /* Fallback color */
-	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-	padding-top: 200px;
+/* Chrome v84*/
+/* Default width is narrow and height can't be changed. */
+html {
+	width: 1200px;
 }
 
-.close {
-	color: #fff;
+body {
+	margin: 0 18px;
+}
+
+/* Firefox  v78 */
+/* Fixed width and height. Margin of 16px by default. */
+@media (width: 632px) {
+	html {
+		width: 632px;
+	}
+
+	body {
+		margin: 0 2px;
+	}
+}
+
+/* Edge v84 */
+/* Dimensions can't be changed. Width is so small that I removed the margins to make some room. */
+@media (width: 400px) {
+	html {
+		width: auto;
+	}
+
+	body {
+		margin: 0;
+	}
+}
+
+
+body {
+	background-color: #ffffff;
+	color: #0c0c0d;
+	font-size: 15px;
+}
+
+a {
+	color: #45a1ff;
+	text-decoration: none;
+}
+
+form {
+	margin-bottom: 4px;
+}
+
+.optioncontainer {
+	margin: 0 0 30px 0;
+}
+
+.optiontitle {
+	font-size: 17px;
+}
+
+.sectiontitle {
+	font-size: 22px;
+	margin-top: 22px;
+}
+
+.maintitle {
+	font-size: 32px;
+	margin-top: 20px;
+}
+
+.sectiontitle,
+.maintitle {
+	border-bottom: 1px solid #4a4a4f;
+	font-weight: bold;
+}
+
+.sectiontitle {
+	margin: 60px 0 20px 0;
+}
+
+.optiondescription {
+	color: #4a4a4f;
+}
+
+textarea {
+	height: 150px;
+	width: 100%;
+	margin: 5px 0;
+	padding: 3px;
+	resize: vertical;
+	font-size: 13px;
+}
+
+input[type="checkbox"] {
+	margin-right: 1px;
+}
+
+input[type="text"] {
+	height: 25px;
+	margin-left: 5px;
+}
+
+input[type="color"] {
+	height: 25px;
+	width: 25px;
+	padding: 0;
+	vertical-align: bottom;
+}
+
+textarea,
+input[type="text"] {
+	color: #0c0c0d !important;
+	font-family: Courier New;
+}
+
+textarea,
+input[type="text"],
+input[type="color"] {
+	border: 1px solid #b1b1b3;
+	border-radius: 2px;
+}
+
+
+.modal {
+	height: 100%;
+	width: 100%;
+	left: 0;
+	top: 0;
+	background-color: rgba(0, 0, 0, 0.4);
+	display: none;
+	overflow: auto;
+	padding-top: 200px;
+	position: fixed;
+	z-index: 1;
+}
+
+.modal-content {
+	width: 80%;
+	position: fixed;
+	bottom: 200px;
+	left: 10%;
+	background-color: #fefefe;
+	border: 1px solid #888;
+	border-radius: 7px;
+	padding: 0;
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+	animation-name: animate;
+	animation-duration: 0.4s;
+}
+
+.modal-header {
+	color: #2a2a2e;
+	font-size: 22px;
+	padding: 8px 16px;
+	font-weight: bold;
+	border-radius: 7px 7px 0 0;
+}
+
+#clear_modal .modal-header {
+	background-color: #ffe900;
+}
+
+#restore_modal .modal-header {
+	background-color: #30e60b;
+}
+
+.modal-closebutton {
+	color: #2a2a2e;
 	float: right;
 	font-size: 28px;
 	font-weight: bold;
+	position: relative;
+	top: -6px;
 }
 
-.close:hover,
-.close:focus {
+.modal-closebutton:hover,
+.modal-closebutton:focus {
 	opacity: 0.6;
 	text-decoration: none;
 	cursor: pointer;
 }
 
-.modal-header {
-	padding: 2px 16px;
-	color: white;
+.modal-body {
+	color: #2a2a2e;
+	padding: 16px;
 }
-
-#clear_modal .modal-header {
-	background-color: #f44336;
-}
-
-#restore_modal .modal-header {
-	background-color: #4caf50;
-}
-
-.modal-body {padding: 2px 16px;}
 
 .modal-footer {
-	padding: 8px 16px;
+	padding: 16px;
 	border-top: 1px solid grey;
 }
 
-.modal-content {
-	position: relative;
-	background-color: #fefefe;
-	margin: auto;
-	padding: 0;
-	border: 1px solid #888;
-	width: 80%;
-	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-	-webkit-animation-name: animatetop;
-	-webkit-animation-duration: 0.4s;
-	animation-name: animatetop;
-	animation-duration: 0.4s;
+.modal-footer button {
+	width: 60px;
+	margin-right: 10px;
 }
 
-	@-webkit-keyframes animatetop {
-		from {top: -300px; opacity: 0}
-		to {top: 0; opacity: 1}
+@keyframes animate {
+	from {bottom: 0; opacity: 0}
+	to {bottom: 200px; opacity: 1}
+}
+
+
+@media (prefers-color-scheme: dark) {
+	body {
+		background-color: #202023;
+		color: #f9f9fa;
 	}
 
-	@keyframes animatetop {
-		from {top: -300px; opacity: 0}
-		to {top: 0; opacity: 1}
-	} 
+	.sectiontitle,
+	.maintitle {
+		border-bottom: 1px solid #b1b1b3;
+	}
+
+	.optiondescription {
+		color: #b1b1b3;
+	}
+
+	textarea,
+	input[type="text"] {
+		color: #f9f9fa !important;
+	}
+
+	textarea,
+	input[type="text"],
+	input[type="color"] {
+		background-color: #2a2a2e;
+		border: 1px solid #4a4a4f;
+	}
+
+	.modal-content {
+		background-color: #202023;
+	}
+
+	.modal-body {
+		color: #f9f9fa;
+	}
+}
 		</style>
 	</head>
 	<body>
-		<div id="body">
-			<h1>DynamicHistory Settings</h1>
-			<p>
-			by: <a href="http://nulldev.xyz">nulldev</a>
-			</p>
-			<p>
-			<b>Note:</b> Settings are saved automatically.
-			</p>
-			<h2>Removal criteria</h2>
-			<h3>Dangerous domains:</h3>
-			Always delete history for the following domains:<br />
-			<textarea id="danger_domains" rows="5" data-placeholder="Example:\n\nbad.example.com\nhorrible.bad.com"></textarea><br /><br />
-			<h3>Safe domains:</h3>
-			Never delete history for the following domains:<br />
-			<textarea id="safe_domains" rows="5" data-placeholder="Example:\n\ncool.example.com\ngod.example.com"></textarea><br /><br />
-			<h3>Dangerous keywords:</h3>
-			Delete the history for a page containing any of the following words:<br />
-			<textarea id="bad_words" rows="5" data-placeholder="Example:\n\nhorrible\ndisgusting\nbad"></textarea><br /><br />
 
-			<h2>Matching options (for advanced users)</h2>
-			<h3>Regex 'Dangerous domains':</h3>
-			Use regex to match for dangerous domains: <input id="do_regex_danger_domains" type="checkbox" /><br /><br />
-			<h3>Regex 'Safe domains':</h3>
-			Use regex to match for safe domains: <input id="do_regex_safe_domains" type="checkbox" /><br /><br />
-			<h3>Regex 'Dangerous keywords':</h3>
-			Use regex to match for dangerous keywords: <input id="do_regex_danger_keywords" type="checkbox" /><br /><br />
-			<h3>Check entire URL:</h3>
-			Check the entire URL (including protocol, path and query) when comparing domains. More useful if regex is enabled. <input id="do_check_entire_url" type="checkbox" /><br /><br />
-			<h3>Scan full HTML when matching 'Dangerous keywords':</h3>
-			Scan all HTML code instead of only scanning only visible text: <input id="scan_all" type="checkbox" /><br /><br />
-			<h3>Enable continuous matching:</h3>
-			Constantly monitor the page for any 'dangerous keywords'. May adversely affect browser performance. Enable this if DynamicHistory is not working on some pages. <input id="continuous_matching" type="checkbox" /><br /><br />
+		<div>
+			<div class="maintitle">DynamicHistory Settings</div>
+			<br>
+			<div class="optiontitle"><b>Note:</b> Settings are saved automatically.</div>
+			<br>
+			<div class="optiontitle">Made by <a href="https://nulldev.xyz">nulldev</a>.</div>
 
-			<h2>Display options</h2>
-			<h3>Append prefix:</h3>
-			Append a prefix to any tab that has it's history removed (buggy on some web pages): <input id="do_prefix" type="checkbox" /><br /><br />
-			<h3>Outline page:</h3>
-			Apply a colored outline to the page of any tab that has it's history removed (buggy on some web pages): <input id="do_outline" type="checkbox" /><br /><br />
-			<h3>Show badge:</h3>
-			Show a badge beside the DynamicHistory icon when viewing a tab that has it's history removed: <input id="do_badge" type="checkbox" /><br /><br />
-			<h3>Inject CSS:</h3>
-			Inject custom CSS into any page that has it's history removed: <input id="inject_css" type="checkbox" /><br /><br />
-			<h3>Inject JavaScript:</h3>
-			Inject custom JS into any page that has it's history removed: <input id="inject_js" type="checkbox" /><br /><br />
 
-			<h3>Prefix text:</h3>
-			The prefix to be appended if "Append Prefix" is enabled:<br />
-			<input id="prefix_text" type="text" /><br /><br />
-			<h3>Outline color:</h3>
-			The outline color of the page if "Outline Page" is enabled:<br />
-			<input id="outline_color" type="color" style="width: 100px"><br /><br />
-			<h3>Badge text:</h3>
-			The text of the badge to show if "Show Badge" is enabled:<br />
-			<input id="badge_text" type="text" /><br /><br />
-			<h3>Badge color:</h3>
-			The color of the badge to show if "Show Badge" is enabled:<br />
-			<input id="badge_color" type="color" style="width: 100px"><br /><br />
-			<h3>CSS code:</h3>
-			The CSS to be injected if "Inject CSS" is enabled:<br />
-			<textarea id="css_code" rows="5" data-placeholder="Example:\n\nbody {\n    filter: grayscale(100%);\n}"></textarea><br /><br />
-			<h3>JavaScript code:</h3>
-			The JavaScript to be injected if "Inject JavaScript" is enabled:<br />
-			<textarea id="js_code" rows="5" data-placeholder="Example:\n\nalert(&quot;History removed!&quot;);"></textarea><br /><br />
+			<div class="sectiontitle">Removal criteria</div>
 
-			<div id="custom_hist_proc">
-				<h2>Advanced</h2>
-				<h3>Custom history processor:</h3>
-				Run a custom JavaScript function to modify history items as they are added to the history database.<br><br><b>Be careful when writing your own history processors</b>, as history processors are run continuously on a history entry until an iteration is reached where the entry is not modified by the history processor. When in doubt, open the console for the background page to monitor your history processor's activities so it doesn't end up in an infinite loop.<br />
-				<textarea id="history_processor" rows="10" cols="50" data-placeholder="Example:\n\n//Pretend that all the sites we visit are secure\nif(item.url.startsWith(&quot;http&quot;) && !item.url.startsWith(&quot;https&quot;))\n    item.url = item.url.replace('http', 'https');\n\n//Remove all FTP sites\nif(item.url.startsWith(&quot;ftp&quot;)\n    item.remove();"></textarea><br /><br />
-				<h3>History processor templates:</h3>
-				<div id="hp_templates">
+			<div class="optioncontainer">
+				<div class="optiontitle">Dangerous domains</div>
+				<div class="optiondescription">Always delete the history entries for these domains:</div>
+				<textarea class="browser-style" id="danger_domains" spellcheck="false" data-placeholder="Example:\n\nbad.example.com\nhorrible.bad.com"></textarea>
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="do_regex_danger_domains" type="checkbox" />
+						<label for="do_regex_danger_domains">Use regex</label>
+					</form>
 				</div>
 			</div>
 
-			<h2>Useful actions</h2>
-			<button id="clear_btn">Reset All Settings</button>
-			<button id="backup_btn">Backup Settings</button>
-			<button id="restore_btn">Restore Settings</button>
-			<input id="file_input" style="display:none" type="file" id="file-input" />
-			<br /><br />
+			<div class="optioncontainer">
+				<div class="optiontitle">Safe domains</div>
+				<div class="optiondescription">Never delete the history entries for these domains:</div>
+				<textarea class="browser-style" id="safe_domains" spellcheck="false" data-placeholder="Example:\n\ncool.example.com\ngod.example.com"></textarea>
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="do_regex_safe_domains" type="checkbox" />
+						<label for="do_regex_safe_domains">Use regex</label>
+					</form>
+				</div>
+			</div>
+
+			<div class="optioncontainer">
+				<div class="optiontitle">Dangerous keywords</div>
+				<div class="optiondescription">Delete the history entries for pages containing any of these words:</div>
+				<textarea class="browser-style" id="bad_words" data-placeholder="Example:\n\nhorrible\ndisgusting\nbad"></textarea>
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="do_regex_danger_keywords" type="checkbox" />
+						<label for="do_regex_danger_keywords">Use regex</label>
+					</form>
+				</div>
+			</div>
+
+
+			<div class="sectiontitle">Matching options (for advanced users)</div>
+
+			<div class="optioncontainer">
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="do_check_entire_url" type="checkbox" />
+						<label for="do_check_entire_url">Check entire URL</label>
+					</form>
+				</div>
+				<div class="optiondescription">Check the entire URL (including protocol, path and query) when comparing domains. More useful if regex is enabled.</div>
+			</div>
+
+			<div class="optioncontainer">
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="scan_all" type="checkbox" />
+						<label for="scan_all">Scan full HTML when matching "Dangerous keywords"</label>
+					</form>
+				</div>
+				<div class="optiondescription">Scan all of the HTML code instead of scanning only visible text.</div>
+			</div>
+
+
+			<div class="optioncontainer">
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="continuous_matching" type="checkbox" />
+						<label for="continuous_matching">Enable continuous matching</label>
+					</form>
+				</div>
+				<div class="optiondescription">Constantly monitor the page for any "dangerous keywords". May adversely affect browser performance. Enable this if DynamicHistory is not working on some pages.</div>
+			</div>
+
+
+			<div class="sectiontitle">Display options</div>
+
+			<div class="optioncontainer">
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="do_prefix" type="checkbox" />
+						<label for="do_prefix">Append prefix</label>
+						<input id="prefix_text" type="text" />
+					</form>
+				</div>
+				<div class="optiondescription">Append this prefix to any tab that has had its history entry removed (buggy on some web pages).</div>
+			</div>
+
+			<div class="optioncontainer">
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="do_outline" type="checkbox" />
+						<label for="do_outline">Outline page</label>
+						<span class="browser-style">
+							<input id="outline_color" type="color" />
+						</span>
+					</form>
+				</div>
+				<div class="optiondescription">Apply a colored outline to the page that has had its history entry removed (buggy on some web pages).</div>
+			</div>
+
+			<div class="optioncontainer">
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="do_badge" type="checkbox" />
+						<label for="do_badge">Show badge</label>
+						<span class="browser-style">
+							<input id="badge_text" type="text" spellcheck="false" />
+							<input id="badge_color" type="color" />
+						</span>
+					</form>
+				</div>
+			<div class="optiondescription">Show a badge next to the DynamicHistory icon when viewing a tab that has had its history entry removed.</div>
+			</div>
+
+			<div class="optioncontainer">
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="inject_css" type="checkbox" />
+						<label for="inject_css">Inject CSS</label>
+					</form>
+				</div>
+				<div class="optiondescription">Inject this custom CSS code into any page that has had its history entry removed:</div>
+				<textarea class="browser-style" id="css_code" spellcheck="false" data-placeholder="Example:\n\nbody {\n    filter: grayscale(100%);\n}"></textarea>
+			</div>
+
+			<div class="optioncontainer">
+				<div class="optiontitle">
+					<form class="browser-style">
+						<input id="inject_js" type="checkbox" />
+						<label for="inject_js">Inject JavaScript</label>
+					</form>
+				</div>
+				<div class="optiondescription">Inject this custom JavaScript code into any page that has had its history entry removed:</div>
+				<textarea class="browser-style" id="js_code" spellcheck="false" data-placeholder="Example:\n\nalert(&quot;History removed!&quot;);"></textarea>
+			</div>
+
+
+			<div id="custom_hist_proc" class="optioncontainer">
+				<div class="sectiontitle">Advanced</div>
+
+				<div class="optioncontainer">
+					<div class="optiontitle">Custom history processor</div>
+					<div class="optiondescription">Run a custom JavaScript function to modify history items as they are added to the history database.<br><br><b>Be careful when writing your own history processors</b>, as history processors are run continuously on a history entry until an iteration is reached where the entry is not modified by the history processor. When in doubt, open the console for the background page to monitor your history processor's activities so it doesn't end up in an infinite loop.</div>
+					<textarea id="history_processor" class="browser-style" spellcheck="false" data-placeholder="Example:\n\n//Pretend that all websites we visit are secure\nif(item.url.startsWith(&quot;http&quot;) && !item.url.startsWith(&quot;https&quot;))\n    item.url = item.url.replace(&quot;http&quot;, &quot;https&quot;);\n\n//Remove all FTP URLs\nif(item.url.startsWith(&quot;ftp&quot;)\n    item.remove();"></textarea><br><br>
+					<div class="optiontitle">History processor templates:</div>
+					<div id="hp_templates"></div>
+				</div>
+			</div>
+
+
+			<div class="sectiontitle" class="browser-style">Backup and restore settings</div>
+			<button id="clear_btn" class="browser-style">Reset All Settings</button>
+			<button id="backup_btn" class="browser-style">Backup Settings</button>
+			<button id="restore_btn" class="browser-style">Restore Settings</button>
+			<input id="file_input" style="display:none" type="file" />
+			<br><br>
 			<a id="oninstall_link" style="display:none" href="oninstall.html">View Installation Instructions</a>
+
 		</div>
+
 
 		<div id="clear_modal" class="modal">
 			<div class="modal-content">
 				<div class="modal-header">
-					<span class="close">&times;</span>
-					<h2>Reset all settings?</h2>
+					<span class="modal-closebutton">&times;</span>
+					<div>Reset all settings?</div>
 				</div>
-				<div class="modal-body">
-					<p>Are you sure you want to reset all settings to their default values?</p>
-					<p>This action is irreversible!</p>
-				</div>
+				<div class="modal-body">Are you sure you want to reset all settings to their default values?<br><br>This action is irreversible!</div>
 				<div class="modal-footer">
-					<button id="clear_yes_btn">Yes</button>
-					<button id="clear_no_btn">No</button>
+					<button id="clear_yes_btn" class="browser-style">Yes</button>
+					<button id="clear_no_btn" class="browser-style">No</button>
 				</div>
 			</div>
 		</div>
+
 		<div id="restore_modal" class="modal">
 			<div class="modal-content">
 				<div class="modal-header">
-					<span class="close">&times;</span>
-					<h2>Restore complete!</h2>
+					<span class="modal-closebutton">&times;</span>
+					<div>Restore complete!</div>
 				</div>
 				<div class="modal-body">
-					<p>Your settings have been restored!</p>
+					<div>Your settings have been restored!</div>
 				</div>
 				<div class="modal-footer">
 					<button id="restore_close_btn">Close</button>
 				</div>
 			</div>
 		</div>
+
 	</body>
 </html>
