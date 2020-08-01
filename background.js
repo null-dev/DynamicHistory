@@ -98,22 +98,22 @@ function isDangerous(tab, theHtml) {
 	if (opt.doRegexSafeDomains) {
 		let result = batchTest(safeDomains, pageDomain);
 		if (result.result)
-			return {result: false, reason: "Domain matches safe domain regex: ", target: result.item};
+			return {result: false, reason: "Domain matches the following safe domain regex: ", target: result.item};
 	} else {
 		let result = contains(safeDomains, pageDomain);
 		if (result.result)
-			return {result: false, reason: "Domain is safe domain: ", target: result.item};
+			return {result: false, reason: "Domain is set as a safe domain: ", target: result.item};
 	}
 
 	//Test danger domains
 	if (opt.doRegexDangerDomains) {
 		let result = batchTest(dangerDomains, pageDomain);
 		if (result.result)
-			return {result: true, reason: "Domain matches dangerous domain regex: ", target: result.item};
+			return {result: true, reason: "Domain matches the following dangerous domain regex: ", target: result.item};
 	} else {
 		let result = contains(dangerDomains, pageDomain);
 		if (result.result)
-			return {result: true, reason: "Domain is dangerous domain: ", target: result.item};
+			return {result: true, reason: "Domain is set as a dangerous domain: ", target: result.item};
 	}
 
 	if(theHtml != null) {
@@ -121,20 +121,20 @@ function isDangerous(tab, theHtml) {
 		if(opt.doRegexDangerKeywords) {
 			let result = batchTest(badWords, theHtml);
 			if (result.result)
-				return {result: true, reason: "HTML matches dangerous keyword regex: ", target: result.item};
+				return {result: true, reason: "HTML matches the following dangerous keyword regex: ", target: result.item};
 		} else {
 			let result = stringContainsAnyStringsOfArrayOfStrings(theHtml, badWords);
 			if(!result.result) {
 				result = stringContainsAnyStringsOfArrayOfStrings(theHtml, escapedBadWords);
 				if(result.result)
-					return {result: true, reason: "Dangerous keyword (escaped) found on page: ", target: result.item};
+					return {result: true, reason: "The following dangerous keyword (escaped) was found on this page: ", target: result.item};
 			} else {
-				return {result: true, reason: "Dangerous keyword found on page: ", target: result.item};
+				return {result: true, reason: "The following dangerous keyword was found on this page: ", target: result.item};
 			}
 		}
 	}
 
-	return {result: false, reason: "Page does not match any dangerous keywords or domains"};
+	return {result: false, reason: "This page does not match any dangerous keywords or domains."};
 }
 
 //Remove the history for a url

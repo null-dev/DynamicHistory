@@ -2,14 +2,77 @@
 	<head>
 		<script src="popup.js"></script>
 		<style>
+			html {
+				background-color: #ededf0;
+			}
+
 			body {
-				width: 300px;
+				width: 500px;
+				background-color: #ffffff;
+				color: #0c0c0d;
+				font-size: 15px;
+				margin: 0;
+				font-family: Segoe UI;
+			}
+
+			a {
+				color: #45a1ff;
+				text-decoration: none;
+			}
+
+			#reason, #target {
+				margin-bottom: 10px;
+			}
+
+			#status {
+				padding: 8px;
+				background-color: #ededf0;
+				margin: 0;
+				font-size: 17px;
+				font-weight: bold;
+			}
+
+			.container {
+				padding: 16px 8px 8px 8px;
+			}
+
+			.removed {
+				color: #d70022;
+			}
+
+			.notremoved {
+				color: #12bc00;
+			}
+
+			#options {
+				float: right;
+				cursor: pointer;
+				margin: 8px;
+			}
+
+			@media (prefers-color-scheme: dark) {
+				html {
+					background-color: #3e3e42;
+				}
+
+				body {
+					background-color: #2f2f33;
+					color: #f9f9fa;
+				}
+
+				#status {
+					background-color: #3e3e42;
+				}
+
 			}
 		</style>
 	</head>
 	<body>
-		<h3 id="status">Loading...</h3>
-		<p><span id="reason"></span><span id="target" style="font-weight:bold"></span></p>
-		<a id="options" href="#">Options</a>
+		<div id="status">Loading...</div>
+		<div class="container">
+			<div id="reason"></div>
+			<div id="target" style="font-weight:bold"></div>
+			<a id="options">Options</a>
+		</div>
 	</body>
 </html>
