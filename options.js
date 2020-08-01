@@ -16,38 +16,37 @@
 function loadSettings(callback) {
 	storage().get(DEFAULT_OPTIONS(), function(items) {
 		$('#danger_domains').val(items.dangerDomains);
-		$('#safe_domains').val(items.safeDomains);
-		$('#bad_words').val(items.badWords);
-		$('#history_processor').val(items.historyProcessor);
-
 		$('#do_regex_danger_domains').prop('checked', items.doRegexDangerDomains);
+		
+		$('#safe_domains').val(items.safeDomains);
 		$('#do_regex_safe_domains').prop('checked', items.doRegexSafeDomains);
+		
+		$('#bad_words').val(items.badWords);
 		$('#do_regex_danger_keywords').prop('checked', items.doRegexDangerKeywords);
+
 		$('#do_check_entire_url').prop('checked', items.doCheckEntireUrl);
 		$('#scan_all').prop('checked', items.scanAll);
 		$('#continuous_matching').prop('checked', items.continuousMatching);
 
 		$('#do_prefix').prop('checked', items.doPrefix);
-		$('#do_outline').prop('checked', items.doOutline);
-		$('#do_badge').prop('checked', items.doBadge);
-		$('#inject_css').prop('checked', items.injectCss);
-		$('#inject_js').prop('checked', items.injectJs);
-
 		$('#prefix_text').val(items.prefixText);
+		
+		$('#do_outline').prop('checked', items.doOutline);
 		$('#outline_color').val(items.outlineColor);
+		
+		$('#do_badge').prop('checked', items.doBadge);
 		$('#badge_text').val(items.badgeText);
 		$('#badge_color').val(items.badgeColor);
+		
+		$('#inject_css').prop('checked', items.injectCss);
 		$('#css_code').val(items.cssCode);
+		
+		$('#inject_js').prop('checked', items.injectJs);
 		$('#js_code').val(items.jsCode);
-		updateInputStates();
 
-		//Initalize placeholders
-		$('textarea').each(function() {
-			if($(this).val() == '') {
-				$(this).val(pVal($(this)));
-				$(this).css('color', 'grey');
-			}
-		});
+		$('#history_processor').val(items.historyProcessor);
+		
+		updateInputStates();
 
 		if(callback)
 			callback();
@@ -56,30 +55,36 @@ function loadSettings(callback) {
 //Save settings
 let saveSettings = debounce(function() {
 	storage().set({
-		dangerDomains: ignoreP($('#danger_domains')),
-		safeDomains: ignoreP($('#safe_domains')),
-		badWords: ignoreP($('#bad_words')),
-		historyProcessor: ignoreP($('#history_processor')),
-
+		dangerDomains: $('#danger_domains').val(),
 		doRegexDangerDomains: $('#do_regex_danger_domains').prop('checked'),
+		
+		safeDomains: $('#safe_domains').val(),
 		doRegexSafeDomains: $('#do_regex_safe_domains').prop('checked'),
+		
+		badWords: $('#bad_words').val(),
 		doRegexDangerKeywords: $('#do_regex_danger_keywords').prop('checked'),
+
 		doCheckEntireUrl: $('#do_check_entire_url').prop('checked'),
 		scanAll: $('#scan_all').prop('checked'),
 		continuousMatching: $('#continuous_matching').prop('checked'),
 
 		doPrefix: $('#do_prefix').prop('checked'),
-		doOutline: $('#do_outline').prop('checked'),
-		doBadge: $('#do_badge').prop('checked'),
-		injectCss: $('#inject_css').prop('checked'),
-		injectJs: $('#inject_js').prop('checked'),
-
 		prefixText: $('#prefix_text').val(),
+		
+		doOutline: $('#do_outline').prop('checked'),
 		outlineColor: $('#outline_color').val(),
+		
+		doBadge: $('#do_badge').prop('checked'),
 		badgeText: $('#badge_text').val(),
 		badgeColor: $('#badge_color').val(),
-		cssCode: ignoreP($('#css_code')),
-		jsCode: ignoreP($('#js_code'))
+		
+		injectCss: $('#inject_css').prop('checked'),
+		cssCode: $('#css_code').val(),
+		
+		injectJs: $('#inject_js').prop('checked'),
+		jsCode: $('#js_code').val(),
+		
+		historyProcessor: $('#history_processor').val()
 	}, function() {
 		//Update background page
 		chrome.runtime.sendMessage({
@@ -102,14 +107,6 @@ function updateInputStates() {
 function saveAndUpdate() {
 	saveSettings();
 	updateInputStates();
-}
-function ignoreP(a) {
-	if(a.val() == pVal(a))
-		return '';
-	else return a.val();
-}
-function pVal(a) {
-	return a.data().placeholder.replace(/\\n/g, '\n');
 }
 
 function bindHpTemplates() {
@@ -153,10 +150,6 @@ function bindTemplate(name, code) {
 	btn.textContent = name;
 	btn.onclick = function() {
 		let box = $("#history_processor");
-		if(box.val() == pVal(box)) {
-			box.val('');
-			box.css('color', 'black');
-		}
 
 		box.val((box.val().trim() + "\n\n" + "//" + name + "\n" + code.trim()).trim());
 
@@ -198,20 +191,6 @@ function debounce(func, wait, immediate) {
 };
 
 jQuery(document).ready(function () {
-	//Hook placeholders
-	$('textarea').focus(function(){
-		if($(this).val() === pVal($(this))){
-			$(this).val('');
-		}
-		$(this).css('color', 'black');
-	});
-	$('textarea').blur(function(){
-		if($(this).val() === ''){
-			$(this).val(pVal($(this)));
-			$(this).css('color', 'grey');
-		}    
-	});
-
 	//Allows resetting of all settings
 	let clearModal = $("#clear_modal");
 	$("#clear_btn").click(function () {
@@ -221,7 +200,7 @@ jQuery(document).ready(function () {
 	let hideModal = function() {
 		clearModal.hide();
 	};
-	$("#clear_modal .close").click(hideModal);
+	$("#clear_modal .modal-closebutton").click(hideModal);
 	$("#clear_no_btn").click(hideModal);
 	$("#clear_yes_btn").click(function() {
 		storage().clear(function() {

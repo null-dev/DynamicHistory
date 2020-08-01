@@ -277,7 +277,7 @@ input[type="color"] {
 			<div class="optioncontainer">
 				<div class="optiontitle">Dangerous domains</div>
 				<div class="optiondescription">Always delete the history entries for these domains:</div>
-				<textarea class="browser-style" id="danger_domains" spellcheck="false" data-placeholder="Example:\n\nbad.example.com\nhorrible.bad.com"></textarea>
+				<textarea class="browser-style" id="danger_domains" spellcheck="false" placeholder="Example:&#10;&#10;bad.example.com&#10;horrible.bad.com"></textarea>
 				<div class="optiontitle">
 					<form class="browser-style">
 						<input id="do_regex_danger_domains" type="checkbox" />
@@ -289,7 +289,7 @@ input[type="color"] {
 			<div class="optioncontainer">
 				<div class="optiontitle">Safe domains</div>
 				<div class="optiondescription">Never delete the history entries for these domains:</div>
-				<textarea class="browser-style" id="safe_domains" spellcheck="false" data-placeholder="Example:\n\ncool.example.com\ngod.example.com"></textarea>
+				<textarea class="browser-style" id="safe_domains" spellcheck="false" placeholder="Example:&#10;&#10;cool.example.com&#10;god.example.com"></textarea>
 				<div class="optiontitle">
 					<form class="browser-style">
 						<input id="do_regex_safe_domains" type="checkbox" />
@@ -301,7 +301,7 @@ input[type="color"] {
 			<div class="optioncontainer">
 				<div class="optiontitle">Dangerous keywords</div>
 				<div class="optiondescription">Delete the history entries for pages containing any of these words:</div>
-				<textarea class="browser-style" id="bad_words" data-placeholder="Example:\n\nhorrible\ndisgusting\nbad"></textarea>
+				<textarea class="browser-style" id="bad_words" placeholder="Example:&#10;&#10;horrible&#10;disgusting&#10;bad"></textarea>
 				<div class="optiontitle">
 					<form class="browser-style">
 						<input id="do_regex_danger_keywords" type="checkbox" />
@@ -393,7 +393,7 @@ input[type="color"] {
 					</form>
 				</div>
 				<div class="optiondescription">Inject this custom CSS code into any page that has had its history entry removed:</div>
-				<textarea class="browser-style" id="css_code" spellcheck="false" data-placeholder="Example:\n\nbody {\n    filter: grayscale(100%);\n}"></textarea>
+				<textarea class="browser-style" id="css_code" spellcheck="false" placeholder="Example:&#10;&#10;body {&#10;    filter: grayscale(100%);&#10;}"></textarea>
 			</div>
 
 			<div class="optioncontainer">
@@ -404,7 +404,7 @@ input[type="color"] {
 					</form>
 				</div>
 				<div class="optiondescription">Inject this custom JavaScript code into any page that has had its history entry removed:</div>
-				<textarea class="browser-style" id="js_code" spellcheck="false" data-placeholder="Example:\n\nalert(&quot;History removed!&quot;);"></textarea>
+				<textarea class="browser-style" id="js_code" spellcheck="false" placeholder="Example:&#10;&#10;alert(&quot;History removed!&quot;);"></textarea>
 			</div>
 
 
@@ -414,7 +414,7 @@ input[type="color"] {
 				<div class="optioncontainer">
 					<div class="optiontitle">Custom history processor</div>
 					<div class="optiondescription">Run a custom JavaScript function to modify history items as they are added to the history database.<br><br><b>Be careful when writing your own history processors</b>, as history processors are run continuously on a history entry until an iteration is reached where the entry is not modified by the history processor. When in doubt, open the console for the background page to monitor your history processor's activities so it doesn't end up in an infinite loop.</div>
-					<textarea id="history_processor" class="browser-style" spellcheck="false" data-placeholder="Example:\n\n//Pretend that all websites we visit are secure\nif(item.url.startsWith(&quot;http&quot;) && !item.url.startsWith(&quot;https&quot;))\n    item.url = item.url.replace(&quot;http&quot;, &quot;https&quot;);\n\n//Remove all FTP URLs\nif(item.url.startsWith(&quot;ftp&quot;)\n    item.remove();"></textarea><br><br>
+					<textarea id="history_processor" class="browser-style" spellcheck="false" placeholder="Example:&#10;&#10;//Pretend that all websites we visit are secure&#10;if(item.url.startsWith(&quot;http&quot;) && !item.url.startsWith(&quot;https&quot;))&#10;    item.url = item.url.replace(&quot;http&quot;, &quot;https&quot;);&#10;&#10;//Remove all FTP URLs&#10;if(item.url.startsWith(&quot;ftp&quot;)&#10;    item.remove();"></textarea><br><br>
 					<div class="optiontitle">History processor templates:</div>
 					<div id="hp_templates"></div>
 				</div>
